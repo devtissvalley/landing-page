@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -17,10 +17,131 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-hanken);
+}
+
+@theme {
+  /* Daftarkan utilitas utility class font untuk Tailwind v4 */
+  --font-hanken: var(--font-hanken), sans-serif;
+  --font-spectral: var(--font-spectral), serif;
+}
+
+/* --- CUSTOM ANIMATIONS & UTILITIES --- */
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-in {
+  opacity: 0;
+  animation: hero-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes kenburns {
+  from {
+    transform: scale(1) scaleX(-1);
+  }
+  to {
+    transform: scale(1.08) scaleX(-1);
+  }
+}
+.hero-image {
+  animation: kenburns 22s ease-in-out infinite alternate;
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal-up.is-in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-scale.is-in-view {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.sidebar-backdrop {
+  transition: opacity 0.5s ease;
+}
+.sidebar-panel {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sidebar-link-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.sidebar-link-in {
+  animation: sidebar-link-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Accessibility: Matikan animasi jika user tidak menyukainya */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .hero-in,
+  .reveal-up,
+  .reveal-scale,
+  .sidebar-link-in {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .hero-image {
+    animation: none !important;
+  }
 }
