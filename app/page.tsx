@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Reveal from "@/components/Reveal";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,9 +16,12 @@ import {
 } from "@/lib/data";
 
 export default function Home() {
+  const router = useRouter();
+  const openRassa = () => router.push("/rassa");
+
   return (
     <>
-      <Navbar onOpenRassa={() => console.log("test")} />
+      <Navbar onOpenRassa={openRassa} />
 
       <main>
         <section className="relative h-screen w-full px-6 md:px-12 lg:px-20">
@@ -382,6 +386,7 @@ export default function Home() {
 
               <button
                 type="button"
+                onClick={openRassa}
                 className="bg-[#B5765A] text-[#EFE7D7] px-8 py-3 md:px-10 md:py-4 tracking-widest text-xs uppercase cursor-pointer transition-colors duration-300 hover:bg-[#a3684f]"
               >
                 ABOUT RASSA
@@ -517,7 +522,7 @@ export default function Home() {
         </section>
       </main>
 
-      <Footer onOpenRassa={() => setRassaOpen(true)} />
+      <Footer onOpenRassa={openRassa} />
     </>
   );
 }

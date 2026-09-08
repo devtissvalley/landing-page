@@ -143,3 +143,29 @@ export const distances = [
   { place: "Tirta Empul Temple", time: "15 min" },
   { place: "Ngurah Rai Airport (DPS)", time: "1 hr 40 min" },
 ];
+
+// --- RASSA DETAIL PAGE ---
+
+export const rassaIdeas = [
+  {
+    icon: "/icons/oat/TISS_ICON_OAT_SUSTAINABLE.png",
+    title: "Plant-based, always",
+    desc: "No animal on the core menu — vegetables, grains and fruit from the valley, treated as the main event.",
+  },
+  {
+    icon: "/icons/oat/TISS_ICON_OAT_WELCOME.png",
+    title: "Open to everyone",
+    desc: "A public restaurant at the entrance — villa guests walk in from their stay, visitors arrive from the road.",
+  },
+  {
+    icon: "/icons/oat/TISS_ICON_OAT_DINING AREA.png",
+    title: "Restrained, not loud",
+    desc: "Same restraint as the villas — quality over spectacle, and a room that stays as quiet as the terraces outside.",
+  },
+];
+
+export const rassaFacts = [
+  { label: "LOCATION", value: "Front of TISS Valley" },
+  { label: "ACCESS", value: "Guests & public" },
+  { label: "STATUS", value: "Opening soon" },
+];

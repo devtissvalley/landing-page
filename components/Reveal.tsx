@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { useReveal } from "@/hook/useReveal";
 
 type RevealProps = {
@@ -10,6 +10,8 @@ type RevealProps = {
   /** "up" (default fade + lift) or "scale" (gentle zoom + fade, for one signature moment). */
   variant?: "up" | "scale";
   className?: string;
+  /** Extra inline styles — merged after the stagger transitionDelay. */
+  style?: CSSProperties;
 };
 
 export default function Reveal({
@@ -17,6 +19,7 @@ export default function Reveal({
   delay = 0,
   variant = "up",
   className = "",
+  style,
 }: RevealProps) {
   const { ref, inView } = useReveal<HTMLDivElement>();
 
@@ -28,7 +31,7 @@ export default function Reveal({
         inView ? "is-in-view" : "",
         className,
       ].join(" ")}
-      style={{ transitionDelay: `${delay}ms` }}
+      style={{ transitionDelay: `${delay}ms`, ...style }}
     >
       {children}
     </div>
