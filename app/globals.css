@@ -1,35 +1,24 @@
 @import "tailwindcss";
 
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-tiss-forest: #2e4034;
+  --color-tiss-ash: #3f5e4e;
+  --color-tiss-sage: #7e927f;
+  --color-tiss-oat: #efe7d7;
+  --color-tiss-sand: #d8cdb6;
+  --color-tiss-charcoal: #2b2a27;
+  --color-tiss-clay: #b5765a;
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
 
 body {
   font-family: var(--font-hanken);
 }
 
 @theme {
-  /* Daftarkan utilitas utility class font untuk Tailwind v4 */
   --font-hanken: var(--font-hanken), sans-serif;
   --font-spectral: var(--font-spectral), serif;
 }
 
-/* --- CUSTOM ANIMATIONS & UTILITIES --- */
 html {
   scroll-behavior: smooth;
 }
@@ -127,7 +116,6 @@ html {
   animation: sidebar-link-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Accessibility: Matikan animasi jika user tidak menyukainya */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

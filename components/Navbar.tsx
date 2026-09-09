@@ -51,7 +51,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
     <>
       <div className="sticky top-0 z-50 h-0 text-white">
         <nav
-          className={`relative flex justify-between items-center px-6 md:px-12 lg:px-20 py-4 transition-all duration-500 ${scrolled || mobileMenuOpen ? "bg-[#2B2A27]/90 backdrop-blur-md shadow-lg" : ""}`}
+          className={`relative flex justify-between items-center px-6 md:px-12 lg:px-20 py-3 transition-all duration-500 ${scrolled || mobileMenuOpen ? "bg-[#2B2A27]/90 backdrop-blur-md shadow-lg" : ""}`}
         >
           <div>
             <Image

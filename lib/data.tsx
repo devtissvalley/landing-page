@@ -103,17 +103,17 @@ export const villaFeatures = [
 
 export const wellnessFeatures = [
   {
-    icon: "/icons/oat/TISS_ICON_OAT_WELLNESS.png",
+    icon: "/icons/green/TISS_ICON_GREEN_WELLNESS.png",
     title: "In-villa spa treatments",
     desc: "Balinese massage and body treatments brought to your terrace, fresh around you.",
   },
   {
-    icon: "/icons/oat/TISS_ICON_OAT_SUN DECK.png",
+    icon: "/icons/green/TISS_ICON_GREEN_SUN DECK.png",
     title: "Morning yoga on the deck",
     desc: "Private or small-group sessions facing the terraces, at first light.",
   },
   {
-    icon: "/icons/oat/TISS_ICON_OAT_DINING AREA.png",
+    icon: "/icons/green/TISS_ICON_GREEN_DINING AREA.png",
     title: "Plant-based dining at Rassa",
     desc: "Our front-of-property restaurant, built around what is grown, seasonal ingredients.",
   },
