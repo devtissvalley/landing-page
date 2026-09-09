@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Reveal from "@/components/Reveal";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,9 +17,12 @@ import {
 import { Fragment } from "react/jsx-runtime";
 
 export default function Home() {
+  const router = useRouter();
+  const openRassa = () => router.push("/rassa");
+
   return (
     <>
-      <Navbar onOpenRassa={() => console.log("test")} />
+      <Navbar onOpenRassa={openRassa} />
 
       <main>
         <section className="relative h-screen w-full px-6 md:px-12 lg:px-20">
@@ -503,7 +507,7 @@ export default function Home() {
         </section>
       </main>
 
-      <Footer onOpenRassa={() => setRassaOpen(true)} />
+      <Footer onOpenRassa={openRassa} />
     </>
   );
 }
