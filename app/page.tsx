@@ -237,7 +237,7 @@ export default function Home() {
               key={villa.name}
               className="sticky w-full bg-tiss-oat border-t border-tiss-charcoal/15 overflow-hidden flex flex-col md:flex-row items-stretch shadow-none"
               style={{
-                top: `calc(9rem + ${i * 2}rem)`,
+                top: "9rem",
                 height: "min(85vh, 900px)",
               }}
             >
