@@ -1,9 +1,8 @@
-// components/Navbar.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, Fragment } from "react";
 import { navLinks } from "@/lib/data";
 import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
 
@@ -11,18 +10,35 @@ interface NavbarProps {
   onOpenRassa: () => void;
 }
 
-// Nav links that route to a real page instead of an in-page "#" anchor.
 const navRoutes: Record<string, string> = {
   VILLAS: "/villas",
   WELLNESS: "/wellness",
 };
 
 export default function Navbar({ onOpenRassa }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const lastScrollY = useRef(0);
+
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      setIsScrolled(currentScrollY > 40);
+
+      if (!mobileMenuOpen) {
+        if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+          setIsVisible(false);
+        } else {
+          setIsVisible(true);
+        }
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
     const handleResize = () => {
       if (window.innerWidth >= 768) setMobileMenuOpen(false);
     };
@@ -35,7 +51,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -56,9 +72,17 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
 
   return (
     <>
-      <div className="sticky top-0 z-50 h-0 text-white">
+      <div
+        className={`fixed top-0 left-0 w-full z-50 text-white transition-transform duration-700 ease-in-out ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
         <nav
-          className={`relative flex justify-between items-center px-6 md:px-12 lg:px-20 py-3 transition-all duration-500 ${scrolled || mobileMenuOpen ? "bg-[#2B2A27]/90 backdrop-blur-md shadow-lg" : ""}`}
+          className={`relative flex justify-between items-center px-6 md:px-12 lg:px-20 py-3 transition-all duration-700 ease-in-out ${
+            isScrolled || mobileMenuOpen
+              ? "bg-tiss-charcoal/90 backdrop-blur-md shadow-lg py-2"
+              : "py-4"
+          }`}
         >
           <div>
             <Image
@@ -66,7 +90,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
               height={200}
               src="/logo/tiss-valley.png"
               alt="logo"
-              className="size-16 md:size-24 lg:size-30"
+              className="w-16 md:w-20 lg:w-24 h-auto object-contain transition-all duration-700"
             />
           </div>
 
@@ -100,7 +124,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
 
           <Link
             href="/reserve"
-            className="hidden md:inline-block border border-white px-10 py-3 transition-colors duration-300 hover:bg-white hover:text-[#2B2A27]"
+            className="hidden md:inline-block border border-white px-10 py-3 transition-colors duration-300 hover:bg-white hover:text-tiss-charcoal shrink-0"
           >
             <span className="tracking-widest">RESERVE</span>
           </Link>
@@ -121,99 +145,155 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
       <div
         onClick={() => setMobileMenuOpen(false)}
         aria-hidden="true"
-        className={`sidebar-backdrop md:hidden fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm ${mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        className={`md:hidden fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm transition-opacity duration-700 ease-out ${
+          mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
       />
 
       <div
-        className={`sidebar-panel md:hidden fixed top-0 right-0 z-[120] h-full w-[82%] max-w-sm bg-[#2B2A27] text-white shadow-2xl ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`md:hidden fixed top-0 right-0 z-[120] h-full w-[85%] max-w-sm bg-tiss-charcoal text-white shadow-2xl transition-transform duration-700 ease-out ${
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
       >
-        <span className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-[#B5765A]/70 to-transparent" />
+        <span className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-tiss-clay/70 to-transparent" />
 
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-[#EFE7D7]/10">
+          <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-tiss-oat/10">
             <Image
               width={140}
               height={140}
               src="/logo/tiss-valley.png"
               alt="logo"
-              className="size-12"
+              className="w-12 h-auto object-contain"
             />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
-              className="size-9 flex items-center justify-center rounded-full border border-[#EFE7D7]/20 transition-all duration-300 hover:border-[#B5765A] hover:rotate-90"
+              className="size-10 flex items-center justify-center rounded-full border border-tiss-oat/20 transition-all duration-500 hover:border-tiss-clay hover:rotate-90"
             >
-              &times;
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13 1L1 13M1 1L13 13"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           </div>
 
-          <nav className="flex-1 flex flex-col justify-center gap-8 px-8">
-            {navLinks.map((label, i) =>
-              navRoutes[label] ? (
-                <Link
-                  key={label}
-                  href={navRoutes[label]}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-                  style={{ animationDelay: `${i * 80 + 80}ms` }}
-                >
-                  {label}
-                </Link>
-              ) : (
-                <a
-                  key={label}
-                  href="#"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-                  style={{ animationDelay: `${i * 80 + 80}ms` }}
-                >
-                  {label}
-                </a>
-              ),
-            )}
+          <nav className="flex-1 flex flex-col justify-center gap-8 px-8 overflow-y-auto">
+            {navLinks.map((label, i) => (
+              <Fragment key={label}>
+                {navRoutes[label] ? (
+                  <Link
+                    href={navRoutes[label]}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`link-underline font-spectral text-3xl md:text-4xl inline-block w-fit transition-all duration-700 ease-out transform ${
+                      mobileMenuOpen
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-8 opacity-0"
+                    }`}
+                    style={{ transitionDelay: `${i * 70 + 150}ms` }}
+                  >
+                    {label}
+                  </Link>
+                ) : (
+                  <a
+                    href="#"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`link-underline font-spectral text-3xl md:text-4xl inline-block w-fit transition-all duration-700 ease-out transform ${
+                      mobileMenuOpen
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-8 opacity-0"
+                    }`}
+                    style={{ transitionDelay: `${i * 70 + 150}ms` }}
+                  >
+                    {label}
+                  </a>
+                )}
+              </Fragment>
+            ))}
+
             <button
               type="button"
               onClick={() => {
                 onOpenRassa();
                 setMobileMenuOpen(false);
               }}
-              className={`link-underline font-spectral text-3xl text-left w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-              style={{ animationDelay: "320ms" }}
+              className={`link-underline font-spectral text-3xl md:text-4xl text-left w-fit transition-all duration-700 ease-out transform ${
+                mobileMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+              style={{ transitionDelay: `${navLinks.length * 70 + 150}ms` }}
             >
               RASSA
             </button>
             <Link
               href="/location"
               onClick={() => setMobileMenuOpen(false)}
-              className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-              style={{ animationDelay: "400ms" }}
+              className={`link-underline font-spectral text-3xl md:text-4xl inline-block w-fit transition-all duration-700 ease-out transform ${
+                mobileMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+              style={{
+                transitionDelay: `${(navLinks.length + 1) * 70 + 150}ms`,
+              }}
             >
               LOCATION
             </Link>
           </nav>
 
-          <div className="px-8 pb-10">
+          <div className="px-8 pb-10 mt-auto">
             <Link
               href="/reserve"
               onClick={() => setMobileMenuOpen(false)}
-              className={`block text-center border border-white px-8 py-4 mb-8 transition-colors duration-300 hover:bg-white hover:text-[#2B2A27] ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-              style={{ animationDelay: "470ms" }}
+              className={`block text-center border border-tiss-oat px-8 py-4 mb-8 transition-all duration-700 ease-out transform hover:bg-tiss-oat hover:text-tiss-charcoal ${
+                mobileMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+              style={{
+                transitionDelay: `${(navLinks.length + 2) * 70 + 150}ms`,
+              }}
             >
               <span className="tracking-widest text-sm">RESERVE</span>
             </Link>
+
             <div
-              className={`flex items-center justify-center gap-6 text-[#D8CDB6]/60 ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-              style={{ animationDelay: "530ms" }}
+              className={`flex items-center justify-center gap-6 text-tiss-sand/60 transition-all duration-700 ease-out transform ${
+                mobileMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+              style={{
+                transitionDelay: `${(navLinks.length + 3) * 70 + 150}ms`,
+              }}
             >
-              <IconPhone className="size-4" />
-              <span className="w-px h-4 bg-[#EFE7D7]/15" />
-              <IconInstagram className="size-4" />
-              <span className="w-px h-4 bg-[#EFE7D7]/15" />
-              <IconWhatsApp className="size-4" />
+              <a href="#" className="hover:text-tiss-oat transition-colors">
+                <IconPhone className="size-5" />
+              </a>
+              <span className="w-px h-4 bg-tiss-oat/15" />
+              <a href="#" className="hover:text-tiss-oat transition-colors">
+                <IconInstagram className="size-5" />
+              </a>
+              <span className="w-px h-4 bg-tiss-oat/15" />
+              <a href="#" className="hover:text-tiss-oat transition-colors">
+                <IconWhatsApp className="size-5" />
+              </a>
             </div>
           </div>
         </div>
