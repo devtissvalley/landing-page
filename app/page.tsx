@@ -529,8 +529,10 @@ export default function Home() {
         </section>
 
         <section className="bg-tiss-oat px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
-            <Reveal>
+          {/* UBAH DISINI: Ganti items-center menjadi items-stretch */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-stretch">
+            {/* Tambahkan class flex agar teksnya bisa berada di tengah secara vertikal */}
+            <Reveal className="flex flex-col justify-center py-4 lg:py-8">
               <p className="text-tiss-forest/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                 LOCATION
               </p>
@@ -541,7 +543,7 @@ export default function Home() {
                 <br className="hidden md:block" />
                 everything.
               </h2>
-              <p className="text-tiss-forest/70 font-light mb-12 max-w-md text-sm md:text-base leading-relaxed">
+              <p className="text-tiss-forest/70 font-light mb-12 max-w-[28rem] text-sm md:text-base leading-relaxed">
                 Set in Sebatu, above the Tegallalang rice terraces — close
                 enough to Ubud for a morning in town, far enough for the noise
                 to stay behind you.
@@ -566,31 +568,51 @@ export default function Home() {
 
             <Reveal
               delay={150}
-              className="relative w-full h-75 sm:h-100 md:h-125 lg:h-150 overflow-hidden"
+              // UBAH DISINI: Ganti lg:h-[600px] menjadi lg:h-full
+              className="relative w-full h-[400px] md:h-[500px] lg:h-full overflow-hidden"
             >
               <Image
                 fill
                 src="/assets/the-valley.webp"
                 alt="Misty rice terraces surrounding the valley"
+                sizes="(max-width: 1024px) 100vw, 50vw" // Tambahan performa
                 className="object-cover"
               />
             </Reveal>
           </div>
         </section>
 
-        <section className="bg-tiss-clay px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24 text-center">
-          <Reveal>
-            <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl text-tiss-oat mb-10">
-              Six villas.
-              <br />
+        <section className="bg-tiss-clay px-6 md:px-12 lg:px-20 py-20 md:py-24 lg:py-32 text-center flex flex-col items-center">
+          <Reveal className="flex flex-col items-center w-full">
+            <p className="text-tiss-oat/70 text-[10px] sm:text-xs tracking-widest uppercase mb-6 md:mb-8">
+              RESERVE
+            </p>
+
+            <h2 className="font-spectral text-4xl md:text-5xl lg:text-[4rem] text-tiss-oat mb-6 leading-tight">
+              Six villas. <br className="hidden md:block" />
               One quiet valley.
             </h2>
-            <Link
-              href="/reserve"
-              className="inline-block bg-tiss-forest text-tiss-oat px-8 py-4 tracking-widest text-sm transition-colors duration-300 hover:brightness-110"
-            >
-              CHECK AVAILABILITY
-            </Link>
+
+            <p className="text-tiss-oat/90 font-light text-sm md:text-base max-w-xl mb-12 leading-relaxed">
+              Availability is limited by design — enquire directly and
+              we&apos;ll hold your dates while you decide.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12">
+              <Link
+                href="/reserve"
+                className="inline-block bg-tiss-forest text-tiss-oat px-8 py-4 tracking-widest text-xs uppercase transition-colors duration-300 hover:brightness-110"
+              >
+                CHECK AVAILABILITY
+              </Link>
+
+              <a
+                href="#"
+                className="inline-block text-tiss-oat text-xs tracking-widest uppercase border-b border-tiss-oat/40 pb-1 transition-colors duration-300 hover:border-tiss-oat"
+              >
+                EMAIL THE VILLA
+              </a>
+            </div>
           </Reveal>
         </section>
       </main>
