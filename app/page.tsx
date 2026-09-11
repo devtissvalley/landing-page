@@ -27,7 +27,6 @@ export default function Home() {
 
       <main>
         <section className="relative h-screen w-full px-6 md:px-12 lg:px-20">
-          {/* UBAH DISINI: 'absolute' diganti menjadi 'fixed' dan 'h-full' menjadi 'h-screen' */}
           <div className="fixed top-0 left-0 w-full h-screen -z-10 overflow-hidden">
             <Image
               width={1920}
@@ -35,9 +34,8 @@ export default function Home() {
               src="/assets/hero.webp"
               alt="hero-image"
               className="w-full h-full object-cover hero-image"
-              priority // Tambahkan priority karena ini LCP (gambar pertama yang dirender)
+              priority
             />
-            {/* Backdrop gelap tetap absolute mengikuti kontainer fixed ini */}
             <div className="w-full h-screen bg-black/70 absolute top-0 left-0">
               <span className="sr-only">black backdrop</span>
             </div>
@@ -134,7 +132,7 @@ export default function Home() {
                 <h3 className="text-tiss-sage text-[10px] tracking-widest uppercase mb-2">
                   {stat.subtitle}
                 </h3>
-                <p className="text-tiss-sand/70 text-center text-xs md:text-sm font-light leading-relaxed max-w-[220px]">
+                <p className="text-tiss-sand/70 text-center text-xs md:text-sm font-light leading-relaxed max-w-55">
                   {stat.desc}
                 </p>
               </div>
@@ -205,14 +203,14 @@ export default function Home() {
 
             <Reveal
               delay={150}
-              className="w-full md:w-1/2 relative h-[60vw] sm:h-[400px] md:h-[500px] lg:h-[700px] overflow-hidden group"
+              className="w-full md:w-1/2 relative h-[60vw] sm:h-100 md:h-125 lg:h-175 overflow-hidden group"
             >
               <Image
                 fill
                 src="/assets/the-valley.webp"
                 alt="Rice terraces above Sebatu at first light"
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105"
+                className="object-cover transition-transform duration-2000 ease-out group-hover:scale-105"
               />
             </Reveal>
           </div>
@@ -257,7 +255,7 @@ export default function Home() {
             {/* KIRI: Area Judul */}
             <Reveal className="w-full lg:w-5/12 lg:sticky top-32">
               <div className="inline-flex items-center gap-4 mb-6">
-                <span className="w-8 h-[1px] bg-tiss-clay"></span>
+                <span className="w-8 h-px bg-tiss-clay"></span>
                 <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest uppercase">
                   THE VILLAS
                 </p>
@@ -396,7 +394,7 @@ export default function Home() {
 
             <Reveal
               delay={150}
-              className="relative w-full h-[60vw] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-sm"
+              className="relative w-full h-[60vw] sm:h-100 md:h-125 lg:h-150 overflow-hidden rounded-sm"
             >
               <Image
                 fill
@@ -470,7 +468,7 @@ export default function Home() {
             </Reveal>
           </div>
 
-          <div className="w-full md:w-1/2 relative min-h-[400px] md:min-h-full">
+          <div className="w-full md:w-1/2 relative min-h-100 md:min-h-full">
             <Reveal
               delay={150}
               className="absolute inset-0 w-full h-full overflow-hidden"
@@ -502,7 +500,7 @@ export default function Home() {
                 delay={i * 70}
                 className="flex flex-col items-center text-center gap-4"
               >
-                <div className="size-16 md:size-[72px] rounded-full bg-tiss-sand flex items-center justify-center transition-transform duration-300 hover:scale-105">
+                <div className="size-16 md:size-18 rounded-full bg-tiss-sand flex items-center justify-center transition-transform duration-300 hover:scale-105">
                   <Image
                     src={icon}
                     alt={label}
@@ -545,7 +543,7 @@ export default function Home() {
                 <br className="hidden md:block" />
                 everything.
               </h2>
-              <p className="text-tiss-forest/70 font-light mb-12 max-w-[28rem] text-sm md:text-base leading-relaxed">
+              <p className="text-tiss-forest/70 font-light mb-12 max-w-md text-sm md:text-base leading-relaxed">
                 Set in Sebatu, above the Tegallalang rice terraces — close
                 enough to Ubud for a morning in town, far enough for the noise
                 to stay behind you.
@@ -570,14 +568,13 @@ export default function Home() {
 
             <Reveal
               delay={150}
-              // UBAH DISINI: Ganti lg:h-[600px] menjadi lg:h-full
-              className="relative w-full h-[400px] md:h-[500px] lg:h-full overflow-hidden"
+              className="relative w-full h-100 md:h-125 lg:h-full overflow-hidden"
             >
               <Image
                 fill
                 src="/assets/the-valley.webp"
                 alt="Misty rice terraces surrounding the valley"
-                sizes="(max-width: 1024px) 100vw, 50vw" // Tambahan performa
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </Reveal>
