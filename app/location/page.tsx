@@ -211,14 +211,14 @@ export default function LocationPage() {
           </div>
         </section>
 
-        {/* MAP — placeholder pin, general Bali only; exact villa coordinates TBD */}
+        {/* MAP — pinned to Jl. Br Jasan, Sebatu, Tegallalang, Gianyar */}
         <section className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24">
           <Reveal className="mb-10 md:mb-14 text-left">
             <p className="text-[#2B2A27]/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
               FIND US
             </p>
             <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl text-[#2B2A27]">
-              Somewhere in the hills of Bali.
+              Find us in Sebatu.
             </h2>
           </Reveal>
 
@@ -227,17 +227,17 @@ export default function LocationPage() {
             className="relative w-full h-[360px] sm:h-[440px] md:h-[520px] overflow-hidden border border-[#2B2A27]/10"
           >
             <iframe
-              src="https://www.openstreetmap.org/export/embed.html?bbox=114.35%2C-8.95%2C115.80%2C-7.95&layer=mapnik&marker=-8.5069%2C115.2625"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=115.2820%2C-8.3889%2C115.3320%2C-8.3489&layer=mapnik&marker=-8.368862%2C115.306984"
               className="w-full h-full"
               style={{ border: 0, filter: "grayscale(0.15) contrast(1.05)" }}
               loading="lazy"
-              title="TISS Valley — general location in Bali"
+              title="TISS Valley — Jl. Br Jasan, Sebatu, Tegallalang, Gianyar, Bali"
             />
           </Reveal>
 
           <p className="text-[#2B2A27]/50 text-xs mt-4 max-w-lg">
-            Pin marks the general highland area, not the exact address —
-            precise directions are shared once your stay is confirmed.
+            Jl. Br Jasan, Sebatu, Kec. Tegallalang, Kabupaten Gianyar, Bali
+            80561 — full directions are shared once your stay is confirmed.
           </p>
         </section>
 
