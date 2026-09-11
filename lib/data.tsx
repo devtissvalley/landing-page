@@ -144,6 +144,14 @@ export const distances = [
   { place: "Ngurah Rai Airport (DPS)", time: "1 hr 40 min" },
 ];
 
+// --- LOCATION DETAIL PAGE ---
+
+export const locationFacts = [
+  { label: "SETTING", value: "Sebatu, above Tegallalang" },
+  { label: "CLIMATE", value: "Highland, cool mornings" },
+  { label: "AIRPORT", value: "1 hr 40 min (DPS)" },
+];
+
 // --- RASSA DETAIL PAGE ---
 
 export const rassaIdeas = [

@@ -2,6 +2,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { navLinks } from "@/lib/data";
 import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
@@ -9,6 +10,12 @@ import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
 interface NavbarProps {
   onOpenRassa: () => void;
 }
+
+// Nav links that route to a real page instead of an in-page "#" anchor.
+const navRoutes: Record<string, string> = {
+  VILLAS: "/villas",
+  WELLNESS: "/wellness",
+};
 
 export default function Navbar({ onOpenRassa }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
@@ -64,11 +71,21 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
           </div>
 
           <div className="hidden md:flex gap-10 justify-center w-full">
-            {navLinks.map((link) => (
-              <a key={link} href="#" className="link-underline">
-                {link}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              navRoutes[link] ? (
+                <Link
+                  key={link}
+                  href={navRoutes[link]}
+                  className="link-underline"
+                >
+                  {link}
+                </Link>
+              ) : (
+                <a key={link} href="#" className="link-underline">
+                  {link}
+                </a>
+              ),
+            )}
             <button
               type="button"
               onClick={onOpenRassa}
@@ -76,17 +93,17 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
             >
               RASSA
             </button>
-            <a href="#" className="link-underline">
+            <Link href="/location" className="link-underline">
               LOCATION
-            </a>
+            </Link>
           </div>
 
-          <a
-            href="#"
+          <Link
+            href="/reserve"
             className="hidden md:inline-block border border-white px-10 py-3 transition-colors duration-300 hover:bg-white hover:text-[#2B2A27]"
           >
             <span className="tracking-widest">RESERVE</span>
-          </a>
+          </Link>
 
           <button
             type="button"
@@ -135,17 +152,29 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
           </div>
 
           <nav className="flex-1 flex flex-col justify-center gap-8 px-8">
-            {navLinks.map((label, i) => (
-              <a
-                key={label}
-                href="#"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
-                style={{ animationDelay: `${i * 80 + 80}ms` }}
-              >
-                {label}
-              </a>
-            ))}
+            {navLinks.map((label, i) =>
+              navRoutes[label] ? (
+                <Link
+                  key={label}
+                  href={navRoutes[label]}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
+                  style={{ animationDelay: `${i * 80 + 80}ms` }}
+                >
+                  {label}
+                </Link>
+              ) : (
+                <a
+                  key={label}
+                  href="#"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
+                  style={{ animationDelay: `${i * 80 + 80}ms` }}
+                >
+                  {label}
+                </a>
+              ),
+            )}
             <button
               type="button"
               onClick={() => {
@@ -157,25 +186,25 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
             >
               RASSA
             </button>
-            <a
-              href="#"
+            <Link
+              href="/location"
               onClick={() => setMobileMenuOpen(false)}
               className={`link-underline font-spectral text-3xl inline-block w-fit ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
               style={{ animationDelay: "400ms" }}
             >
               LOCATION
-            </a>
+            </Link>
           </nav>
 
           <div className="px-8 pb-10">
-            <a
-              href="#"
+            <Link
+              href="/reserve"
               onClick={() => setMobileMenuOpen(false)}
               className={`block text-center border border-white px-8 py-4 mb-8 transition-colors duration-300 hover:bg-white hover:text-[#2B2A27] ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
               style={{ animationDelay: "470ms" }}
             >
               <span className="tracking-widest text-sm">RESERVE</span>
-            </a>
+            </Link>
             <div
               className={`flex items-center justify-center gap-6 text-[#D8CDB6]/60 ${mobileMenuOpen ? "sidebar-link-in" : "opacity-0"}`}
               style={{ animationDelay: "530ms" }}

@@ -1,4 +1,5 @@
 // components/Footer.tsx
+import Link from "next/link";
 import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
 
 interface FooterProps {
@@ -26,10 +27,10 @@ export default function Footer({ onOpenRassa }: FooterProps) {
               <a href="#">The Valley</a>
             </li>
             <li>
-              <a href="#">Villas</a>
+              <Link href="/villas">Villas</Link>
             </li>
             <li>
-              <a href="#">Wellness</a>
+              <Link href="/wellness">Wellness</Link>
             </li>
             <li>
               <button
