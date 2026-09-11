@@ -23,7 +23,7 @@ export default function RassaPage() {
           </Link>
           <span className="font-spectral text-lg md:text-xl">Rassa</span>
           <Link
-            href="/#reserve"
+            href="/reserve"
             className="border border-[#EFE7D7]/60 px-4 py-2 md:px-6 md:py-3 text-[10px] sm:text-xs tracking-widest uppercase transition-colors duration-300 hover:bg-[#EFE7D7] hover:text-[#2B2A27]"
           >
             Reserve a villa

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Reveal from "@/components/Reveal";
 import Navbar from "@/components/Navbar";
@@ -39,7 +40,7 @@ export default function Home() {
               <span className="sr-only">black backdrop</span>
             </div>
           </div>
-          <div className="h-screen flex flex-col justify-center items-start">
+          <div className="h-screen flex flex-col justify-center items-start pt-28 md:pt-32 lg:pt-40">
             <div
               className="hero-in items-center border py-3 px-5 rounded-full gap-3 border-tiss-oat/50 inline-flex mb-6"
               style={{ animationDelay: "0.1s" }}
@@ -71,26 +72,42 @@ export default function Home() {
                 className="hero-in text-tiss-sand w-full max-w-lg"
                 style={{ animationDelay: "0.7s" }}
               >
-                Six pool villas set into the highland rice terraces above Ubud
-                each with its own plunge pool, its own valley view, and room to
-                disappear.
+                Six pool villas set into the highland rice terraces above
+                Ubud — each with its own plunge pool, its own valley view,
+                and room to disappear.
               </p>
               <div
                 className="hero-in mt-5 flex flex-col sm:flex-row items-start sm:items-center gap-5"
                 style={{ animationDelay: "0.9s" }}
               >
-                <a
-                  href="#"
+                <Link
+                  href="/reserve"
                   className="bg-tiss-clay py-5 px-5 text-tiss-oat transition-colors duration-300 hover:brightness-90"
                 >
                   <span className="tracking-widest">RESERVE YOUR STAY</span>
-                </a>
-                <a href="#" className="py-5 text-tiss-oat relative group">
+                </Link>
+                <Link
+                  href="/villas"
+                  className="py-5 text-tiss-oat relative group"
+                >
                   <span className="tracking-widest">VIEW THE VILLAS</span>
                   <span className="absolute w-full bg-tiss-oat block h-px bottom-3 transition-transform duration-300 group-hover:scale-x-110"></span>
-                </a>
+                </Link>
               </div>
             </div>
+          </div>
+
+          <div
+            className="hero-in hidden sm:flex absolute right-6 md:right-12 lg:right-20 bottom-10 md:bottom-14 flex-col items-center gap-3 text-tiss-oat/60"
+            style={{ animationDelay: "1.1s" }}
+          >
+            <span className="w-px h-14 bg-tiss-oat/40" />
+            <span
+              className="text-[10px] tracking-[0.3em] uppercase"
+              style={{ writingMode: "vertical-rl", textOrientation: "upright" }}
+            >
+              Scroll
+            </span>
           </div>
         </section>
 
@@ -166,14 +183,14 @@ export default function Home() {
               </Reveal>
               <Reveal
                 delay={150}
-                className="w-full md:max-w-1/2 h-full max-h-72 md:max-h-200 overflow-hidden"
+                className="w-full md:max-w-1/2 h-72 md:h-[50rem] overflow-hidden"
               >
                 <Image
                   width={1000}
                   height={1000}
                   src="/assets/the-valley.webp"
                   alt="Rice terraces above Sebatu at first light"
-                  className="w-full h-screen bg-cover object-cover"
+                  className="w-full h-full object-cover"
                 />
               </Reveal>
             </div>
@@ -239,8 +256,8 @@ export default function Home() {
                       {villa.caption}
                     </p>
 
-                    <a
-                      href="#"
+                    <Link
+                      href="/villas"
                       className="inline-flex items-center text-tiss-charcoal text-xs tracking-widest uppercase relative group w-max pb-2"
                     >
                       <span className="tracking-widest">DISCOVER MORE</span>
@@ -248,7 +265,7 @@ export default function Home() {
                       <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal/20"></span>
 
                       <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
-                    </a>
+                    </Link>
                   </div>
                 </Reveal>
               </div>
@@ -497,12 +514,12 @@ export default function Home() {
               <br />
               One quiet valley.
             </h2>
-            <a
-              href="#"
+            <Link
+              href="/reserve"
               className="inline-block bg-tiss-forest text-tiss-oat px-8 py-4 tracking-widest text-sm transition-colors duration-300 hover:brightness-110"
             >
               CHECK AVAILABILITY
-            </a>
+            </Link>
           </Reveal>
         </section>
       </main>
