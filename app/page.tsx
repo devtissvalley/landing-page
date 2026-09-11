@@ -356,51 +356,53 @@ export default function Home() {
         </section>
 
         <section className="bg-tiss-sand px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-            <Reveal>
-              <p className="text-tiss-charcoal/50 text-sm tracking-widest mb-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <Reveal className="flex flex-col">
+              <p className="text-tiss-charcoal/50 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                 WELLNESS
               </p>
-              <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl text-tiss-charcoal mb-10">
+              <h2 className="font-spectral text-4xl md:text-5xl lg:text-[3.5rem] leading-tight text-tiss-charcoal mb-8">
                 A retreat, not just a stay.
               </h2>
-              <div className="flex flex-col gap-y-8">
-                <span className="bg-tiss-forest/14 w-full h-px"></span>
-                {wellnessFeatures.map(({ icon, title, desc }, i) => (
-                  <Fragment key={i}>
-                    <div className="flex gap-4">
-                      <div className="bg-tiss-oat p-5 rounded-full flex items-center justify-center">
-                        <Image
-                          src={icon}
-                          alt={title}
-                          width={18}
-                          height={18}
-                          className=""
-                        />
-                      </div>
 
-                      <div>
-                        <h3 className="font-medium text-lg text-tiss-charcoal font-spectral">
-                          {title}
-                        </h3>
-                        <p className="font-light text-base text-tiss-charcoal/70">
-                          {desc}
-                        </p>
-                      </div>
+              <div className="flex flex-col border-t border-tiss-forest/15 mt-2">
+                {wellnessFeatures.map(({ icon, title, desc }, i) => (
+                  <div
+                    key={i}
+                    className="flex gap-5 md:gap-6 py-6 border-b border-tiss-forest/15"
+                  >
+                    <div className="bg-tiss-oat size-14 md:size-16 rounded-full flex items-center justify-center shrink-0">
+                      <Image
+                        src={icon}
+                        alt={title}
+                        width={24}
+                        height={24}
+                        className="size-5 md:size-6 object-contain"
+                      />
                     </div>
-                    <span className="bg-tiss-forest/14 w-full h-px"></span>
-                  </Fragment>
+
+                    <div className="flex flex-col justify-center">
+                      <h3 className="font-medium text-lg md:text-xl text-tiss-charcoal font-spectral mb-2">
+                        {title}
+                      </h3>
+                      <p className="font-light text-sm md:text-base text-tiss-charcoal/70 leading-relaxed">
+                        {desc}
+                      </p>
+                    </div>
+                  </div>
                 ))}
               </div>
             </Reveal>
+
             <Reveal
               delay={150}
-              className="relative w-full h-[28rem] sm:h-[32rem] md:h-[44rem] lg:h-[48rem] overflow-hidden rounded-sm"
+              className="relative w-full h-[60vw] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-sm"
             >
               <Image
                 fill
                 src="/assets/wellnes-yoga.webp"
                 alt="Morning yoga session on a deck facing the valley"
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </Reveal>
