@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: "TISS Valley — Stay in the Rhythm of Comfort",
   description:
     "Six one-bedroom pool villas set into the highland rice terraces above Sebatu, Bali — a luxury wellness retreat, quietly elevated.",
+
+  icons: {
+    icon: "/logo/tiss-valley.png",
+    apple: "/logo/tiss-valley.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
