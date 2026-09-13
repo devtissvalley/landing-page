@@ -48,39 +48,21 @@ export const brandEssences = [
 
 export const villas = [
   {
-    name: "Terrace Villa",
+    name: "TISS Vally Suite",
     caption: "Steps into the terracing, first light at the door.",
-    src: "/assets/villa-terrace.webp",
+    src: "/assets/villa/terrace-villa.webp",
     span: "md:row-span-2",
   },
   {
-    name: "Garden Villa",
+    name: "TISS Garden Suite",
     caption: "Ground level, surrounded by planting on every side.",
-    src: "/assets/villa-garden.webp",
+    src: "/assets/villa/garden-villa.webp",
     span: "",
   },
   {
-    name: "End Villa",
+    name: "TISS Valley Poolfront Suite",
     caption: "Furthest from the gate, closest to the treeline.",
-    src: "/assets/villa-end.webp",
-    span: "",
-  },
-  {
-    name: "Stone Villa",
-    caption: "Volcanic stone walls, open-air soaking tub.",
-    src: "/assets/villa-stone.webp",
-    span: "",
-  },
-  {
-    name: "Canopy Villa",
-    caption: "Raised deck, dining in the open air.",
-    src: "/assets/villa-canopy.webp",
-    span: "",
-  },
-  {
-    name: "Spring Villa",
-    caption: "Nearest the spring-fed pool at the valley floor.",
-    src: "/assets/villa-spring.webp",
+    src: "/assets/villa/end-villa.webp",
     span: "",
   },
 ];
@@ -88,15 +70,15 @@ export const villas = [
 // Fitur list untuk section THE VILLAS
 export const villaFeatures = [
   {
-    icon: "/icons/oat/TISS_ICON_OAT_POOL.png",
+    icon: "/icons/green/TISS_ICON_GREEN_POOL.png",
     text: "Private plunge pool in every villa",
   },
   {
-    icon: "/icons/oat/TISS_ICON_OAT_MOUNTAIN VIEW.png",
+    icon: "/icons/green/TISS_ICON_GREEN_MOUNTAIN VIEW.png",
     text: "Uninterrupted valley view",
   },
   {
-    icon: "/icons/oat/TISS_ICON_OAT_BEDROOM.png",
+    icon: "/icons/green/TISS_ICON_GREEN_BEDROOM.png",
     text: "One bedroom, individually set",
   },
 ];
