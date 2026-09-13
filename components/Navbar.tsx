@@ -145,20 +145,20 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
       <div
         onClick={() => setMobileMenuOpen(false)}
         aria-hidden="true"
-        className={`md:hidden fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm transition-opacity duration-700 ease-out ${
+        className={`md:hidden fixed inset-0 z-110 bg-black/60 backdrop-blur-sm transition-opacity duration-700 ease-out ${
           mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
       <div
-        className={`md:hidden fixed top-0 right-0 z-[120] h-full w-[85%] max-w-sm bg-tiss-charcoal text-white shadow-2xl transition-transform duration-700 ease-out ${
+        className={`md:hidden fixed top-0 right-0 z-120 h-full w-[85%] max-w-sm bg-tiss-charcoal text-white shadow-2xl transition-transform duration-700 ease-out ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
       >
-        <span className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-tiss-clay/70 to-transparent" />
+        <span className="absolute inset-y-0 left-0 w-px bg-linear-to-b from-transparent via-tiss-clay/70 to-transparent" />
 
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-tiss-oat/10">

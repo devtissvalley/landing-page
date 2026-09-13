@@ -31,9 +31,9 @@ export default function Home() {
             <Image
               width={1920}
               height={1080}
-              src="/assets/hero.webp"
+              src="/assets/hero-section.webp"
               alt="hero-image"
-              className="w-full h-full object-cover hero-image"
+              className="w-full h-full object-cover hero-image -scale-x-100"
               priority
             />
             <div className="w-full h-screen bg-black/70 absolute top-0 left-0">
@@ -261,15 +261,17 @@ export default function Home() {
                 </p>
               </div>
               <h2 className="font-spectral text-4xl md:text-5xl lg:text-7xl text-tiss-charcoal leading-[1.1]">
-                Six, and <br className="hidden lg:block" /> only six.
+                Three, ways <br className="hidden lg:block" /> to stay.
               </h2>
             </Reveal>
 
             <div className="w-full lg:w-7/12 flex flex-col">
               <Reveal delay={100} className="mb-12 md:mb-16">
                 <p className="text-tiss-charcoal/90 font-light text-lg md:text-xl lg:text-2xl leading-relaxed max-w-2xl">
-                  One bedroom, one private pool, one uninterrupted valley view
-                  in every villa, without exception. A space to disappear.
+                  Three distinct ways to experience the highlands. While the
+                  spaces vary in design, every villa offers the exact same
+                  luxury: your own pool, your own bedroom, and an open view of
+                  the quiet valley. A place for stillness.
                 </p>
               </Reveal>
 
@@ -278,7 +280,7 @@ export default function Home() {
                 <p className="text-tiss-charcoal/40 text-[10px] tracking-widest uppercase mb-6">
                   VILLA ESSENTIALS
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-10 gap-x-6 border-t border-tiss-charcoal/15 pt-8">
+                <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-between items-start gap-y-10 gap-x-6 border-t border-tiss-charcoal/15 pt-8 w-full">
                   {villaFeatures.map((feature, i) => (
                     <div
                       key={i}
@@ -291,7 +293,7 @@ export default function Home() {
                         height={24}
                         className="size-6 object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-500"
                       />
-                      <span className="text-tiss-charcoal/80 text-sm font-light">
+                      <span className="text-tiss-charcoal/80 text-sm font-light lg:whitespace-nowrap">
                         {feature.text}
                       </span>
                     </div>
