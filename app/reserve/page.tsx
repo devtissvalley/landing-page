@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Reveal from "@/components/Reveal";
 import { villas, villaFeatures } from "@/lib/data";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
@@ -41,6 +41,21 @@ export default function ReservePage() {
 
   const selectedVilla = villas[villaIndex];
   const nights = nightsBetween(checkIn, checkOut);
+
+  // Pre-select the villa when arriving from a per-villa "Reserve"/"Check
+  // rates" link (e.g. /reserve?villa=Terrace%20Villa). Read on mount via
+  // window.location rather than useSearchParams so this page doesn't need
+  // a Suspense boundary.
+  useEffect(() => {
+    const villaParam = new URLSearchParams(window.location.search).get(
+      "villa",
+    );
+    if (!villaParam) return;
+    const idx = villas.findIndex(
+      (v) => v.name.toLowerCase() === villaParam.toLowerCase(),
+    );
+    if (idx >= 0) setVillaIndex(idx);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

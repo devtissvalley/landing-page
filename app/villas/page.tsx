@@ -13,6 +13,18 @@ const placeholderImages = [
   "/assets/rassa.webp",
 ];
 
+// Shared spec line for every villa — all six are the same one-bedroom,
+// one-pool layout (see villaFeatures / the brand book Background page);
+// only the name, setting and view differ per villa.
+const villaSpecs = [
+  "1 Villa",
+  "One Bedroom",
+  "Private Plunge Pool",
+  "Valley View",
+  "Suitable for 2 Adults",
+  "Free Wi-Fi",
+];
+
 export default function VillasPage() {
   return (
     <>
@@ -154,50 +166,64 @@ export default function VillasPage() {
           </Reveal>
         </section>
 
-        {/* VILLAS LIST */}
+        {/* VILLAS LIST — boxed spec cards, alternating sides */}
         <section
           id="the-villas"
-          className="flex flex-col gap-24 md:gap-32 bg-[#EFE7D7] pb-24 md:pb-32"
+          className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 pb-24 md:pb-32"
         >
-          {villas.map((villa, i) => (
-            <div
-              key={villa.name}
-              className="w-full flex flex-col md:flex-row items-stretch"
-            >
-              <div className="w-full md:w-5/12 flex flex-col justify-center order-2 md:order-1 px-6 md:px-12 lg:px-20 py-12 md:py-0">
-                <Reveal>
-                  <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-6 uppercase">
-                    Villa 0{i + 1}
-                  </p>
-                  <h3 className="text-[#2B2A27] font-spectral text-4xl md:text-5xl leading-none mb-8">
-                    {villa.name}
-                  </h3>
-                  <p className="text-[#2B2A27]/70 text-sm md:text-base font-light leading-relaxed max-w-sm mb-12">
-                    {villa.caption}
-                  </p>
-                  <Link
-                    href="/reserve"
-                    className="inline-flex items-center text-[#2B2A27] text-xs tracking-widest uppercase relative group w-max pb-2"
-                  >
-                    <span className="tracking-widest">RESERVE THIS VILLA</span>
-                    <span className="absolute left-0 bottom-0 w-full h-px bg-[#2B2A27]/20"></span>
-                    <span className="absolute left-0 bottom-0 w-full h-px bg-[#2B2A27] scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
-                  </Link>
-                </Reveal>
-              </div>
-
-              <div className="w-full md:w-7/12 order-1 md:order-2 relative h-[50vh] md:h-[36rem] overflow-hidden bg-[#2B2A27]/5">
-                <Reveal delay={150} className="w-full h-full">
+          <div className="flex flex-col gap-8 md:gap-10 max-w-6xl mx-auto">
+            {villas.map((villa, i) => (
+              <Reveal
+                key={villa.name}
+                className={`border border-[#2B2A27]/10 bg-[#EFE7D7] flex flex-col ${
+                  i % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"
+                }`}
+              >
+                <div className="w-full md:w-1/2 relative h-64 md:h-auto overflow-hidden">
                   <Image
                     fill
                     src={placeholderImages[i % placeholderImages.length]}
                     alt={villa.name}
                     className="object-cover"
                   />
-                </Reveal>
-              </div>
-            </div>
-          ))}
+                </div>
+
+                <div className="w-full md:w-1/2 flex flex-col justify-center px-8 py-10 md:p-12 lg:p-16">
+                  <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                    Villa 0{i + 1}
+                  </p>
+                  <h3 className="text-[#2B2A27] font-spectral text-3xl md:text-4xl leading-none mb-6">
+                    {villa.name}
+                  </h3>
+
+                  <ul className="flex flex-col gap-2 mb-6 text-[#2B2A27]/70 text-sm font-light">
+                    {villaSpecs.map((spec) => (
+                      <li key={spec}>{spec}</li>
+                    ))}
+                  </ul>
+
+                  <p className="text-[#2B2A27]/70 text-sm md:text-base font-light leading-relaxed max-w-sm mb-8">
+                    {villa.caption}
+                  </p>
+
+                  <div className="flex flex-wrap gap-4">
+                    <Link
+                      href={`/reserve?villa=${encodeURIComponent(villa.name)}`}
+                      className="bg-[#B5765A] text-[#EFE7D7] px-6 py-3 text-[10px] sm:text-xs tracking-widest uppercase transition-colors duration-300 hover:bg-[#a3684f]"
+                    >
+                      Reserve This Villa
+                    </Link>
+                    <Link
+                      href={`/reserve?villa=${encodeURIComponent(villa.name)}`}
+                      className="border border-[#2B2A27]/30 text-[#2B2A27] px-6 py-3 text-[10px] sm:text-xs tracking-widest uppercase transition-colors duration-300 hover:bg-[#2B2A27] hover:text-[#EFE7D7]"
+                    >
+                      Check Rates
+                    </Link>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </section>
 
         {/* CLOSING CTA */}
