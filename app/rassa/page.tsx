@@ -25,7 +25,8 @@ export default function RassaPage() {
               src="/assets/rassa.webp"
               alt="Plant-based produce prepared at Rassa"
               className="w-full h-full object-cover hero-image"
-              loading="eager"
+              sizes="100vw"
+              priority
             />
             <div className="absolute inset-0 bg-[#2B2A27]/80">
               <span className="sr-only">dark backdrop</span>
@@ -120,7 +121,8 @@ export default function RassaPage() {
               <Image
                 fill
                 src="/assets/rassa.webp"
-                alt="Vegetables being prepared on a wooden board at Rassa"
+                alt="Vegetables being prepared on a wooden board at Rassa, Sebatu"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </Reveal>
@@ -144,7 +146,8 @@ export default function RassaPage() {
                 <div className="py-12 lg:py-16 px-6 lg:px-10 h-full flex flex-col">
                   <Image
                     src={idea.icon}
-                    alt={idea.title}
+                    alt=""
+                    aria-hidden="true"
                     width={32}
                     height={32}
                     className="size-7 md:size-8 object-contain mb-6"
