@@ -77,7 +77,8 @@ export default function ReservePage() {
               src="/assets/hero.webp"
               alt="A pool villa set into the highland rice terraces"
               className="w-full h-full object-cover hero-image"
-              loading="eager"
+              sizes="100vw"
+              priority
             />
             <div className="absolute inset-0 bg-[#2B2A27]/85">
               <span className="sr-only">dark backdrop</span>
@@ -330,7 +331,8 @@ export default function ReservePage() {
                   <Image
                     fill
                     src={placeholderImages[villaIndex % placeholderImages.length]}
-                    alt={selectedVilla.name}
+                    alt={`${selectedVilla.name} at TISS Valley, Sebatu`}
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                     className="object-cover"
                   />
                 </div>

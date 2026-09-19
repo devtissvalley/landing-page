@@ -101,7 +101,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps = {}) {
               width={200}
               height={200}
               src="/logo/tiss-valley.png"
-              alt="logo"
+              alt="TISS Valley"
               className="w-16 md:w-20 lg:w-24 h-auto object-contain transition-all duration-700"
             />
           </Link>
@@ -206,7 +206,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps = {}) {
                 width={140}
                 height={140}
                 src="/logo/tiss-valley.png"
-                alt="logo"
+                alt="TISS Valley"
                 className="w-12 h-auto object-contain"
               />
             </Link>

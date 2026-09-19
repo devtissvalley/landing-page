@@ -48,7 +48,7 @@ export const brandEssences = [
 
 export const villas = [
   {
-    name: "TISS Vally Suite",
+    name: "TISS Valley Suite",
     caption: "Steps into the terracing, first light at the door.",
     src: "/assets/villa/terrace-villa.webp",
     span: "md:row-span-2",

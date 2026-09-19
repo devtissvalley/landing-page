@@ -1,8 +1,5 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Reveal from "@/components/Reveal";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,26 +12,39 @@ import {
   experienceData,
   distances,
 } from "@/lib/data";
+import JsonLd from "@/components/JsonLd";
+import { BUSINESS, FAQS, faqSchema, webPageSchema } from "@/lib/seo";
 import { Fragment } from "react/jsx-runtime";
 
 export default function Home() {
-  const router = useRouter();
-  const openRassa = () => router.push("/rassa");
-
   return (
     <>
-      <Navbar onOpenRassa={openRassa} />
+      <JsonLd
+        nodes={[
+          webPageSchema({
+            path: "/",
+            name: "TISS Valley — Pool Villas in Sebatu, Above Tegallalang, Bali",
+            description:
+              "Six one-bedroom pool villas in Sebatu, above the Tegallalang rice terraces in Gianyar, Bali — 25 minutes from central Ubud.",
+          }),
+          faqSchema(),
+        ]}
+      />
+
+      <Navbar />
 
       <main>
         <section className="relative h-screen w-full px-6 md:px-12 lg:px-20">
           <div className="fixed top-0 left-0 w-full h-screen -z-10 overflow-hidden">
             <Image
-              width={1920}
-              height={1080}
+              width={1280}
+              height={960}
               src="/assets/hero-section.webp"
-              alt="hero-image"
+              alt="A pool villa at TISS Valley overlooking the highland rice terraces of Sebatu, Bali"
               className="w-full h-full object-cover hero-image -scale-x-100"
+              sizes="100vw"
               priority
+              fetchPriority="high"
             />
             <div className="w-full h-screen bg-black/70 absolute top-0 left-0">
               <span className="sr-only">black backdrop</span>
@@ -69,7 +79,8 @@ export default function Home() {
                 className="hero-in text-tiss-sand w-full max-w-lg"
                 style={{ animationDelay: "0.7s" }}
               >
-                Six pool villas set into the highland rice terraces above Ubud —
+                Six one-bedroom pool villas set into the highland rice terraces
+                of Sebatu, above Tegallalang — 25 minutes north of central Ubud,
                 each with its own plunge pool, its own valley view, and room to
                 disappear.
               </p>
@@ -108,7 +119,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-tiss-charcoal px-6 md:px-12 lg:px-20 py-10 md:py-14">
+        <section
+          aria-labelledby="at-a-glance"
+          className="bg-tiss-charcoal px-6 md:px-12 lg:px-20 py-10 md:py-14"
+        >
+          <h2 id="at-a-glance" className="sr-only">
+            TISS Valley at a glance
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-10 lg:gap-y-0 divide-y sm:divide-y-0 sm:divide-x divide-tiss-oat/10 text-center">
             {statsData.map((stat, idx) => (
               <div
@@ -122,12 +139,12 @@ export default function Home() {
                   width={50}
                   height={50}
                 />
-                <h2 className="text-tiss-oat font-spectral text-2xl md:text-3xl mb-1">
+                <p className="text-tiss-oat font-spectral text-2xl md:text-3xl mb-1">
                   {stat.value}
-                </h2>
-                <h3 className="text-tiss-sage text-[10px] tracking-widest uppercase mb-2">
+                </p>
+                <p className="text-tiss-sage text-[10px] tracking-widest uppercase mb-2">
                   {stat.subtitle}
-                </h3>
+                </p>
                 <p className="text-tiss-sand/70 text-center text-xs md:text-sm font-light leading-relaxed max-w-55">
                   {stat.desc}
                 </p>
@@ -185,14 +202,16 @@ export default function Home() {
                 </div>
 
                 <div className="pt-2">
-                  <a
-                    href="#"
+                  <Link
+                    href="/location"
                     className="inline-flex items-center text-tiss-charcoal text-xs tracking-widest uppercase relative group w-max pb-2"
                   >
-                    <span className="tracking-widest">SEE THE VALLEY</span>
+                    <span className="tracking-widest">
+                      SEE THE LOCATION &amp; DRIVE TIMES
+                    </span>
                     <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal/20"></span>
                     <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </Reveal>
@@ -284,7 +303,8 @@ export default function Home() {
                     >
                       <Image
                         src={feature.icon}
-                        alt="Icon"
+                        alt=""
+                        aria-hidden="true"
                         width={24}
                         height={24}
                         className="size-6 object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-500"
@@ -370,7 +390,8 @@ export default function Home() {
                     <div className="bg-tiss-oat size-14 md:size-16 rounded-full flex items-center justify-center shrink-0">
                       <Image
                         src={icon}
-                        alt={title}
+                        alt=""
+                        aria-hidden="true"
                         width={24}
                         height={24}
                         className="size-5 md:size-6 object-contain"
@@ -474,7 +495,8 @@ export default function Home() {
               <Image
                 fill
                 src="/assets/rassa.webp"
-                alt="Plant-based dishes being prepared at Rassa"
+                alt="Plant-based dishes being prepared at Rassa, the restaurant at TISS Valley"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </Reveal>
@@ -501,7 +523,8 @@ export default function Home() {
                 <div className="size-16 md:size-18 rounded-full bg-tiss-sand flex items-center justify-center transition-transform duration-300 hover:scale-105">
                   <Image
                     src={icon}
-                    alt={label}
+                    alt=""
+                    aria-hidden="true"
                     width={24}
                     height={24}
                     className="size-5 md:size-6 object-contain"
@@ -579,6 +602,41 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Traveller questions, answered plainly — the same facts the rest of
+            the page states, in the form people actually search for them. */}
+        <section
+          id="faq"
+          aria-labelledby="faq-heading"
+          className="bg-tiss-sand px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24"
+        >
+          <Reveal className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
+            <p className="text-tiss-charcoal/50 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+              GOOD TO KNOW
+            </p>
+            <h2
+              id="faq-heading"
+              className="font-spectral text-3xl md:text-4xl lg:text-5xl leading-tight text-tiss-charcoal"
+            >
+              Questions travellers ask.
+            </h2>
+          </Reveal>
+
+          <dl className="max-w-3xl mx-auto border-t border-tiss-charcoal/15">
+            {FAQS.map((faq, i) => (
+              <Reveal key={faq.question} delay={i * 60}>
+                <div className="py-6 md:py-7 border-b border-tiss-charcoal/15">
+                  <dt className="font-spectral text-lg md:text-xl text-tiss-charcoal mb-3">
+                    {faq.question}
+                  </dt>
+                  <dd className="font-light text-sm md:text-base text-tiss-charcoal/70 leading-relaxed">
+                    {faq.answer}
+                  </dd>
+                </div>
+              </Reveal>
+            ))}
+          </dl>
+        </section>
+
         <section className="bg-tiss-clay px-6 md:px-12 lg:px-20 py-20 md:py-24 lg:py-32 text-center flex flex-col items-center">
           <Reveal className="flex flex-col items-center w-full">
             <p className="text-tiss-oat/70 text-[10px] sm:text-xs tracking-widest uppercase mb-6 md:mb-8">
@@ -604,17 +662,19 @@ export default function Home() {
               </Link>
 
               <a
-                href="#"
+                href={BUSINESS.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block text-tiss-oat text-xs tracking-widest uppercase border-b border-tiss-oat/40 pb-1 transition-colors duration-300 hover:border-tiss-oat"
               >
-                EMAIL THE VILLA
+                MESSAGE US ON WHATSAPP
               </a>
             </div>
           </Reveal>
         </section>
       </main>
 
-      <Footer onOpenRassa={openRassa} />
+      <Footer />
     </>
   );
 }

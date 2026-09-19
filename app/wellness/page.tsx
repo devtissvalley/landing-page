@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
@@ -30,7 +28,8 @@ export default function WellnessPage() {
               src="/assets/wellnes-yoga.webp"
               alt="Morning yoga session on a deck facing the valley"
               className="w-full h-full object-cover hero-image"
-              loading="eager"
+              sizes="100vw"
+              priority
             />
             <div className="absolute inset-0 bg-[#2B2A27]/80">
               <span className="sr-only">dark backdrop</span>
@@ -127,7 +126,8 @@ export default function WellnessPage() {
                 <Reveal>
                   <Image
                     src={feature.icon}
-                    alt={feature.title}
+                    alt=""
+                    aria-hidden="true"
                     width={36}
                     height={36}
                     className="size-8 md:size-9 object-contain mb-6"
@@ -149,7 +149,8 @@ export default function WellnessPage() {
                   <Image
                     fill
                     src={placeholderImages[i % placeholderImages.length]}
-                    alt={feature.title}
+                    alt={`${feature.title} at TISS Valley, Sebatu`}
+                    sizes="(max-width: 768px) 100vw, 58vw"
                     className="object-cover"
                   />
                 </Reveal>
@@ -179,7 +180,8 @@ export default function WellnessPage() {
                 <div className="size-16 md:size-[72px] rounded-full bg-[#D8CDB6] flex items-center justify-center transition-transform duration-300 hover:scale-105">
                   <Image
                     src={icon}
-                    alt={label}
+                    alt=""
+                    aria-hidden="true"
                     width={24}
                     height={24}
                     className="size-5 md:size-6 object-contain"

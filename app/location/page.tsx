@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
@@ -21,7 +19,8 @@ export default function LocationPage() {
               src="/assets/hero.webp"
               alt="The highland terraces above Sebatu at first light"
               className="w-full h-full object-cover hero-image"
-              loading="eager"
+              sizes="100vw"
+              priority
             />
             <div className="absolute inset-0 bg-[#2B2A27]/80">
               <span className="sr-only">dark backdrop</span>
@@ -131,7 +130,8 @@ export default function LocationPage() {
               <Image
                 fill
                 src="/assets/wellnes-yoga.webp"
-                alt="A quiet deck facing the terraces above Sebatu"
+                alt="A quiet deck facing the rice terraces above Sebatu, Bali"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </Reveal>
@@ -184,7 +184,8 @@ export default function LocationPage() {
               <Image
                 fill
                 src="/assets/rassa.webp"
-                alt="The road up to TISS Valley through the rice terraces"
+                alt="The road up to TISS Valley through the Tegallalang rice terraces"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </Reveal>

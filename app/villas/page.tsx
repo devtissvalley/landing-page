@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
@@ -41,7 +39,8 @@ export default function VillasPage() {
               src="/assets/hero.webp"
               alt="A pool villa set into the highland rice terraces"
               className="w-full h-full object-cover hero-image"
-              loading="eager"
+              sizes="100vw"
+              priority
             />
             <div className="absolute inset-0 bg-[#2B2A27]/80">
               <span className="sr-only">dark backdrop</span>
@@ -110,7 +109,8 @@ export default function VillasPage() {
                 <div className="px-4 py-6 sm:py-2 flex flex-col items-center gap-3">
                   <Image
                     src={feature.icon}
-                    alt={feature.text}
+                    alt=""
+                    aria-hidden="true"
                     width={28}
                     height={28}
                     className="size-6 md:size-7 object-contain"
@@ -163,7 +163,8 @@ export default function VillasPage() {
                   <Image
                     fill
                     src={placeholderImages[i % placeholderImages.length]}
-                    alt={villa.name}
+                    alt={`${villa.name} — a one-bedroom pool villa at TISS Valley, Sebatu`}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover"
                   />
                 </div>
