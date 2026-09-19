@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { villas, villaFeatures } from "@/lib/data";
+import Navbar from "@/components/Navbar";
 
 // Real assets only live under /public/assets — cycle through them per villa
 // until the dedicated villa-*.webp shots are dropped in.
@@ -28,24 +29,7 @@ const villaSpecs = [
 export default function VillasPage() {
   return (
     <>
-      {/* Top bar — slim, detail-page chrome (back to the valley, not the full nav) */}
-      <div className="sticky top-0 z-50 bg-[#2B2A27]/90 backdrop-blur-md">
-        <nav className="flex justify-between items-center gap-4 px-6 md:px-12 lg:px-20 py-4 text-[#EFE7D7]">
-          <Link
-            href="/"
-            className="link-underline text-[10px] sm:text-xs tracking-widest uppercase"
-          >
-            &larr; TISS Valley
-          </Link>
-          <span className="font-spectral text-lg md:text-xl">Villas</span>
-          <Link
-            href="/reserve"
-            className="border border-[#EFE7D7]/60 px-4 py-2 md:px-6 md:py-3 text-[10px] sm:text-xs tracking-widest uppercase transition-colors duration-300 hover:bg-[#EFE7D7] hover:text-[#2B2A27]"
-          >
-            Reserve a villa
-          </Link>
-        </nav>
-      </div>
+      <Navbar />
 
       <main>
         {/* HERO */}
@@ -69,10 +53,6 @@ export default function VillasPage() {
               className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-[#EFE7D7]/40 mb-8"
               style={{ animationDelay: "0.1s" }}
             >
-              <div className="relative">
-                <span className="bg-[#B5765A] size-2 rounded-full block absolute inset-0"></span>
-                <span className="bg-[#B5765A] size-2 rounded-full block animate-ping"></span>
-              </div>
               <span className="text-[#D8CDB6] text-[10px] sm:text-xs tracking-widest uppercase">
                 SIX VILLAS &middot; ONE QUIET VALLEY
               </span>

@@ -2,20 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { navLinks } from "@/lib/data";
 import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
 
 interface NavbarProps {
-  onOpenRassa: () => void;
+  // Optional: detail pages mount the navbar without a handler and the RASSA
+  // entry falls back to a plain link to /rassa.
+  onOpenRassa?: () => void;
 }
 
 const navRoutes: Record<string, string> = {
+  "THE VALLEY": "/",
   VILLAS: "/villas",
   WELLNESS: "/wellness",
 };
 
-export default function Navbar({ onOpenRassa }: NavbarProps) {
+// Active entry is painted in the clay accent; "/" only matches the landing
+// page exactly, the detail routes also match their nested paths.
+const isActiveRoute = (pathname: string, href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+export default function Navbar({ onOpenRassa }: NavbarProps = {}) {
+  const pathname = usePathname();
+  const isActive = (href: string) => isActiveRoute(pathname, href);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -84,7 +96,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
               : "py-4"
           }`}
         >
-          <div>
+          <Link href="/" aria-label="TISS Valley — home">
             <Image
               width={200}
               height={200}
@@ -92,7 +104,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
               alt="logo"
               className="w-16 md:w-20 lg:w-24 h-auto object-contain transition-all duration-700"
             />
-          </div>
+          </Link>
 
           <div className="hidden md:flex gap-10 justify-center w-full">
             {navLinks.map((link) =>
@@ -100,7 +112,12 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
                 <Link
                   key={link}
                   href={navRoutes[link]}
-                  className="link-underline"
+                  aria-current={
+                    isActive(navRoutes[link]) ? "page" : undefined
+                  }
+                  className={`link-underline ${
+                    isActive(navRoutes[link]) ? "text-tiss-clay" : ""
+                  }`}
                 >
                   {link}
                 </Link>
@@ -110,14 +127,32 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
                 </a>
               ),
             )}
-            <button
-              type="button"
-              onClick={onOpenRassa}
-              className="cursor-pointer link-underline"
+            {onOpenRassa ? (
+              <button
+                type="button"
+                onClick={onOpenRassa}
+                className="cursor-pointer link-underline"
+              >
+                RASSA
+              </button>
+            ) : (
+              <Link
+                href="/rassa"
+                aria-current={isActive("/rassa") ? "page" : undefined}
+                className={`link-underline ${
+                  isActive("/rassa") ? "text-tiss-clay" : ""
+                }`}
+              >
+                RASSA
+              </Link>
+            )}
+            <Link
+              href="/location"
+              aria-current={isActive("/location") ? "page" : undefined}
+              className={`link-underline ${
+                isActive("/location") ? "text-tiss-clay" : ""
+              }`}
             >
-              RASSA
-            </button>
-            <Link href="/location" className="link-underline">
               LOCATION
             </Link>
           </div>
@@ -162,13 +197,19 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
 
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-tiss-oat/10">
-            <Image
-              width={140}
-              height={140}
-              src="/logo/tiss-valley.png"
-              alt="logo"
-              className="w-12 h-auto object-contain"
-            />
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="TISS Valley — home"
+            >
+              <Image
+                width={140}
+                height={140}
+                src="/logo/tiss-valley.png"
+                alt="logo"
+                className="w-12 h-auto object-contain"
+              />
+            </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
@@ -200,7 +241,12 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
                   <Link
                     href={navRoutes[label]}
                     onClick={() => setMobileMenuOpen(false)}
+                    aria-current={
+                      isActive(navRoutes[label]) ? "page" : undefined
+                    }
                     className={`link-underline font-spectral text-3xl md:text-4xl inline-block w-fit transition-all duration-700 ease-out transform ${
+                      isActive(navRoutes[label]) ? "text-tiss-clay" : ""
+                    } ${
                       mobileMenuOpen
                         ? "translate-y-0 opacity-100"
                         : "translate-y-8 opacity-0"
@@ -226,25 +272,46 @@ export default function Navbar({ onOpenRassa }: NavbarProps) {
               </Fragment>
             ))}
 
-            <button
-              type="button"
-              onClick={() => {
-                onOpenRassa();
-                setMobileMenuOpen(false);
-              }}
-              className={`link-underline font-spectral text-3xl md:text-4xl text-left w-fit transition-all duration-700 ease-out transform ${
-                mobileMenuOpen
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-8 opacity-0"
-              }`}
-              style={{ transitionDelay: `${navLinks.length * 70 + 150}ms` }}
-            >
-              RASSA
-            </button>
+            {onOpenRassa ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenRassa();
+                  setMobileMenuOpen(false);
+                }}
+                className={`link-underline font-spectral text-3xl md:text-4xl text-left w-fit transition-all duration-700 ease-out transform ${
+                  mobileMenuOpen
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-8 opacity-0"
+                }`}
+                style={{ transitionDelay: `${navLinks.length * 70 + 150}ms` }}
+              >
+                RASSA
+              </button>
+            ) : (
+              <Link
+                href="/rassa"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-current={isActive("/rassa") ? "page" : undefined}
+                className={`link-underline font-spectral text-3xl md:text-4xl inline-block w-fit transition-all duration-700 ease-out transform ${
+                  isActive("/rassa") ? "text-tiss-clay" : ""
+                } ${
+                  mobileMenuOpen
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-8 opacity-0"
+                }`}
+                style={{ transitionDelay: `${navLinks.length * 70 + 150}ms` }}
+              >
+                RASSA
+              </Link>
+            )}
             <Link
               href="/location"
               onClick={() => setMobileMenuOpen(false)}
+              aria-current={isActive("/location") ? "page" : undefined}
               className={`link-underline font-spectral text-3xl md:text-4xl inline-block w-fit transition-all duration-700 ease-out transform ${
+                isActive("/location") ? "text-tiss-clay" : ""
+              } ${
                 mobileMenuOpen
                   ? "translate-y-0 opacity-100"
                   : "translate-y-8 opacity-0"

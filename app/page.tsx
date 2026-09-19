@@ -43,13 +43,9 @@ export default function Home() {
 
           <div className="h-screen flex flex-col justify-center items-start pt-28 md:pt-32 lg:pt-0">
             <div
-              className="hero-in items-center border py-3 px-5 rounded-full gap-3 border-tiss-oat/50 inline-flex mb-6"
+              className="hero-in items-center gap-3 inline-flex mb-6"
               style={{ animationDelay: "0.1s" }}
             >
-              <div className="relative">
-                <span className="bg-tiss-clay size-3 rounded-full block absolute inset-0"></span>
-                <span className="bg-tiss-clay size-3 rounded-full block animate-ping"></span>
-              </div>
               <span className="text-tiss-sand text-xs sm:text-sm md:text-base">
                 LUXURY WELLNESS RETREAT &middot; SEBATU, BALI
               </span>
