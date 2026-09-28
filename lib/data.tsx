@@ -48,22 +48,16 @@ export const brandEssences = [
 
 export const villas = [
   {
-    name: "TISS Valley Suite",
+    name: "Upper Suite",
     caption: "Steps into the terracing, first light at the door.",
-    src: "/assets/villa/terrace-villa.webp",
-    span: "md:row-span-2",
+    src: "/assets/villa/upper-suite.webp",
+    span: "",
   },
   {
-    name: "TISS Garden Suite",
+    name: "Lower Suite",
     caption: "Ground level, surrounded by planting on every side.",
-    src: "/assets/villa/garden-villa.webp",
-    span: "",
-  },
-  {
-    name: "TISS Valley Poolfront Suite",
-    caption: "Furthest from the gate, closest to the treeline.",
-    src: "/assets/villa/end-villa.webp",
-    span: "",
+    src: "/assets/villa/lower-suite.webp",
+    span: "md:row-span-2",
   },
 ];
 
@@ -87,16 +81,19 @@ export const wellnessFeatures = [
   {
     icon: "/icons/green/TISS_ICON_GREEN_WELLNESS.png",
     title: "In-villa spa treatments",
+    src: "/assets/spaa.webp",
     desc: "Balinese massage and body treatments brought to your terrace, fresh around you.",
   },
   {
     icon: "/icons/green/TISS_ICON_GREEN_SUN DECK.png",
     title: "Morning yoga on the deck",
+    src: "/assets/morning-yoga.webp",
     desc: "Private or small-group sessions facing the terraces, at first light.",
   },
   {
     icon: "/icons/green/TISS_ICON_GREEN_DINING AREA.png",
     title: "Plant-based dining at Rassa",
+    src: "/assets/rassa.webp",
     desc: "Our front-of-property restaurant, built around what is grown, seasonal ingredients.",
   },
 ];

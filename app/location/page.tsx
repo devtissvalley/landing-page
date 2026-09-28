@@ -3,6 +3,7 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { distances, locationFacts } from "@/lib/data";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function LocationPage() {
   return (
@@ -22,7 +23,7 @@ export default function LocationPage() {
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-[#2B2A27]/80">
+            <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>
             </div>
           </div>
@@ -55,8 +56,8 @@ export default function LocationPage() {
               className="hero-in text-[#D8CDB6] font-light max-w-xl text-sm md:text-base leading-relaxed mb-10"
               style={{ animationDelay: "0.7s" }}
             >
-              The quiet has moved uphill. Ubud&rsquo;s centre is busy now —
-              in Sebatu the highland keeps its own slow time: cool mornings,
+              The quiet has moved uphill. Ubud&rsquo;s centre is busy now — in
+              Sebatu the highland keeps its own slow time: cool mornings,
               terraced water, little noise.
             </p>
 
@@ -113,13 +114,12 @@ export default function LocationPage() {
               <span className="block w-16 h-px bg-[#2B2A27]/25 mb-8" />
               <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed mb-6 max-w-[30rem]">
                 Ubud&rsquo;s centre is busy now. In Sebatu, above the
-                Tegallalang terraces, the highland keeps its own slow
-                time — cool mornings, terraced water, little noise.
+                Tegallalang terraces, the highland keeps its own slow time —
+                cool mornings, terraced water, little noise.
               </p>
               <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-[30rem]">
-                TISS Valley is six one-bedroom villas set into that calm,
-                for travellers who come for stillness rather than
-                spectacle.
+                TISS Valley is six one-bedroom villas set into that calm, for
+                travellers who come for stillness rather than spectacle.
               </p>
             </Reveal>
 
@@ -156,8 +156,8 @@ export default function LocationPage() {
                 everything.
               </h2>
               <p className="text-[#D8CDB6]/70 font-light mb-12 max-w-[28rem] text-sm md:text-base leading-relaxed">
-                Close enough to Ubud for a morning in town, far enough for
-                the noise to stay behind you.
+                Close enough to Ubud for a morning in town, far enough for the
+                noise to stay behind you.
               </p>
 
               <div className="flex flex-col border-t border-[#EFE7D7]/15">
@@ -244,15 +244,7 @@ export default function LocationPage() {
       </main>
 
       {/* Slim footer for the detail page */}
-      <footer className="bg-[#2B2A27] px-6 md:px-12 lg:px-20 py-8 text-center">
-        <p className="text-[#D8CDB6]/40 text-xs">
-          Location is part of{" "}
-          <Link href="/" className="link-underline text-[#D8CDB6]/70">
-            TISS Valley
-          </Link>
-          , Sebatu &middot; &copy; 2026 TISS Valley
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 }

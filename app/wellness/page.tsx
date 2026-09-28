@@ -3,6 +3,7 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { wellnessFeatures, experienceData } from "@/lib/data";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 // Real assets only live under /public/assets — cycle through them per feature
 // until dedicated wellness shots are dropped in. the-valley.webp is left out
@@ -31,7 +32,7 @@ export default function WellnessPage() {
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-[#2B2A27]/80">
+            <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>
             </div>
           </div>
@@ -64,9 +65,9 @@ export default function WellnessPage() {
               className="hero-in text-[#D8CDB6] font-light max-w-xl text-sm md:text-base leading-relaxed mb-10"
               style={{ animationDelay: "0.7s" }}
             >
-              A retreat, not just a stay. Every treatment, session and meal
-              is brought to you, unhurried — so the only thing left to do
-              is slow down.
+              A retreat, not just a stay. Every treatment, session and meal is
+              brought to you, unhurried — so the only thing left to do is slow
+              down.
             </p>
 
             <div
@@ -104,8 +105,8 @@ export default function WellnessPage() {
             </p>
             <p className="text-[#D8CDB6] font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed">
               The essence is highland air at first light — cool, clean, and
-              quiet. Every decision, from the mark to the welcome, protects
-              that stillness.
+              quiet. Every decision, from the mark to the welcome, protects that
+              stillness.
             </p>
           </Reveal>
         </section>
@@ -148,7 +149,7 @@ export default function WellnessPage() {
                 <Reveal delay={150} className="w-full h-full">
                   <Image
                     fill
-                    src={placeholderImages[i % placeholderImages.length]}
+                    src={feature.src}
                     alt={`${feature.title} at TISS Valley, Sebatu`}
                     sizes="(max-width: 768px) 100vw, 58vw"
                     className="object-cover"
@@ -217,15 +218,7 @@ export default function WellnessPage() {
       </main>
 
       {/* Slim footer for the detail page */}
-      <footer className="bg-[#2B2A27] px-6 md:px-12 lg:px-20 py-8 text-center">
-        <p className="text-[#D8CDB6]/40 text-xs">
-          Wellness is part of{" "}
-          <Link href="/" className="link-underline text-[#D8CDB6]/70">
-            TISS Valley
-          </Link>
-          , Sebatu &middot; &copy; 2026 TISS Valley
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 }

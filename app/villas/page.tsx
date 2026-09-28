@@ -3,18 +3,14 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { villas, villaFeatures } from "@/lib/data";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-// Real assets only live under /public/assets — cycle through them per villa
-// until the dedicated villa-*.webp shots are dropped in.
 const placeholderImages = [
   "/assets/hero.webp",
   "/assets/wellnes-yoga.webp",
   "/assets/rassa.webp",
 ];
 
-// Shared spec line for every villa — all six are the same one-bedroom,
-// one-pool layout (see villaFeatures / the brand book Background page);
-// only the name, setting and view differ per villa.
 const villaSpecs = [
   "1 Villa",
   "One Bedroom",
@@ -38,11 +34,11 @@ export default function VillasPage() {
               height={1080}
               src="/assets/hero.webp"
               alt="A pool villa set into the highland rice terraces"
-              className="w-full h-full object-cover hero-image"
+              className="w-full h-full object-cover"
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-[#2B2A27]/80">
+            <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>
             </div>
           </div>
@@ -75,9 +71,8 @@ export default function VillasPage() {
               className="hero-in text-[#D8CDB6] font-light max-w-xl text-sm md:text-base leading-relaxed mb-10"
               style={{ animationDelay: "0.7s" }}
             >
-              Six one-bedroom villas, each set quietly into the terracing —
-              its own plunge pool, its own valley view, and room to
-              disappear.
+              Six one-bedroom villas, each set quietly into the terracing — its
+              own plunge pool, its own valley view, and room to disappear.
             </p>
 
             <div
@@ -124,52 +119,53 @@ export default function VillasPage() {
           </div>
         </section>
 
-        {/* INTRO — quotes Brand Positioning & Brand Values verbatim */}
-        <section className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24">
-          <Reveal className="max-w-2xl">
-            <p className="text-[#2B2A27]/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-              BRAND VALUE
-            </p>
-            <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl leading-tight text-[#2B2A27] mb-8">
-              Privacy is the luxury.
-            </h2>
-            <span className="block w-16 h-px bg-[#2B2A27]/25 mb-8" />
-            <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-[34rem] mb-6">
-              Six villas, not sixty. Room to disappear. No two share a wall
-              or a view — each is set on its own fold of the terracing,
-              apart from the rest.
-            </p>
-            <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-[34rem]">
-              Premium, not luxury — where the performance would be, TISS
-              stays restrained.
-            </p>
-          </Reveal>
-        </section>
-
-        {/* VILLAS LIST — boxed spec cards, alternating sides */}
+        {/* INTRO & VILLAS LIST (Sticky Layout) */}
         <section
           id="the-villas"
-          className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 pb-24 md:pb-32"
+          className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 py-16 md:py-24 flex flex-col lg:flex-row gap-12 lg:gap-20 items-start"
         >
-          <div className="flex flex-col gap-8 md:gap-10 max-w-6xl mx-auto">
+          {/* LEFT COLUMN - Sticky Copywriting */}
+          <div className="w-full lg:w-5/12 lg:sticky lg:top-32">
+            <Reveal>
+              <p className="text-[#2B2A27]/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                BRAND VALUE
+              </p>
+              <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl leading-tight text-[#2B2A27] mb-8">
+                Privacy is the luxury.
+              </h2>
+              <span className="block w-16 h-px bg-[#2B2A27]/25 mb-8" />
+              <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed mb-6">
+                Six villas, not sixty. Room to disappear. No two share a wall or
+                a view — each is set on its own fold of the terracing, apart
+                from the rest.
+              </p>
+              <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed">
+                Premium, not luxury — where the performance would be, TISS stays
+                restrained.
+              </p>
+            </Reveal>
+          </div>
+
+          {/* RIGHT COLUMN - Scrolling Villa Items */}
+          <div className="w-full lg:w-7/12 flex flex-col gap-12 md:gap-16">
             {villas.map((villa, i) => (
               <Reveal
                 key={villa.name}
-                className={`border border-[#2B2A27]/10 bg-[#EFE7D7] flex flex-col ${
-                  i % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"
-                }`}
+                className="border border-[#2B2A27]/10 bg-[#EFE7D7] flex flex-col"
               >
-                <div className="w-full md:w-1/2 relative h-64 md:h-auto overflow-hidden">
+                {/* Villa Image */}
+                <div className="w-full relative h-64 sm:h-80 md:h-[28rem] overflow-hidden">
                   <Image
                     fill
-                    src={placeholderImages[i % placeholderImages.length]}
+                    src={villa.src}
                     alt={`${villa.name} — a one-bedroom pool villa at TISS Valley, Sebatu`}
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 1024px) 100vw, 60vw"
                     className="object-cover"
                   />
                 </div>
 
-                <div className="w-full md:w-1/2 flex flex-col justify-center px-8 py-10 md:p-12 lg:p-16">
+                {/* Villa Details */}
+                <div className="w-full flex flex-col justify-center p-8 md:p-10 lg:p-12">
                   <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                     Villa 0{i + 1}
                   </p>
@@ -229,15 +225,7 @@ export default function VillasPage() {
       </main>
 
       {/* Slim footer for the detail page */}
-      <footer className="bg-[#2B2A27] px-6 md:px-12 lg:px-20 py-8 text-center">
-        <p className="text-[#D8CDB6]/40 text-xs">
-          The villas are part of{" "}
-          <Link href="/" className="link-underline text-[#D8CDB6]/70">
-            TISS Valley
-          </Link>
-          , Sebatu &middot; &copy; 2026 TISS Valley
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 }

@@ -39,14 +39,14 @@ export default function Home() {
             <Image
               width={1280}
               height={960}
-              src="/assets/hero-section.webp"
+              src="/assets/tiss-hero.webp"
               alt="A pool villa at TISS Valley overlooking the highland rice terraces of Sebatu, Bali"
               className="w-full h-full object-cover hero-image -scale-x-100"
               sizes="100vw"
               priority
               fetchPriority="high"
             />
-            <div className="w-full h-screen bg-black/70 absolute top-0 left-0">
+            <div className="w-full h-screen bg-black/60 absolute top-0 left-0">
               <span className="sr-only">black backdrop</span>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function Home() {
             >
               <Image
                 fill
-                src="/assets/the-valley.webp"
+                src="/assets/sebatu.webp"
                 alt="Rice terraces above Sebatu at first light"
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover transition-transform duration-2000 ease-out group-hover:scale-105"
@@ -593,7 +593,7 @@ export default function Home() {
             >
               <Image
                 fill
-                src="/assets/the-valley.webp"
+                src="/assets/ricefield.webp"
                 alt="Misty rice terraces surrounding the valley"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
@@ -602,8 +602,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Traveller questions, answered plainly — the same facts the rest of
-            the page states, in the form people actually search for them. */}
         <section
           id="faq"
           aria-labelledby="faq-heading"

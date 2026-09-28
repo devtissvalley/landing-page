@@ -7,6 +7,7 @@ import Reveal from "@/components/Reveal";
 import { villas, villaFeatures } from "@/lib/data";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 // Real assets only live under /public/assets — cycle through them per villa
 // until dedicated villa-*.webp shots are dropped in. the-valley.webp is left
@@ -48,9 +49,7 @@ export default function ReservePage() {
   // window.location rather than useSearchParams so this page doesn't need
   // a Suspense boundary.
   useEffect(() => {
-    const villaParam = new URLSearchParams(window.location.search).get(
-      "villa",
-    );
+    const villaParam = new URLSearchParams(window.location.search).get("villa");
     if (!villaParam) return;
     const idx = villas.findIndex(
       (v) => v.name.toLowerCase() === villaParam.toLowerCase(),
@@ -107,8 +106,8 @@ export default function ReservePage() {
               style={{ animationDelay: "0.5s" }}
             >
               Tell us your dates and which villa calls to you — our team
-              confirms availability and pricing by email, usually within
-              24 hours.
+              confirms availability and pricing by email, usually within 24
+              hours.
             </p>
 
             <a
@@ -139,19 +138,19 @@ export default function ReservePage() {
                   </h2>
                   <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-md">
                     We&rsquo;ve noted your request for {selectedVilla.name}
-                    {nights > 0 ? ` — ${nights} night${nights > 1 ? "s" : ""}` : ""}.
-                    Our team will confirm availability and pricing at{" "}
-                    <span className="text-[#2B2A27]">{email}</span> within
-                    24 hours.
+                    {nights > 0
+                      ? ` — ${nights} night${nights > 1 ? "s" : ""}`
+                      : ""}
+                    . Our team will confirm availability and pricing at{" "}
+                    <span className="text-[#2B2A27]">{email}</span> within 24
+                    hours.
                   </p>
                   <button
                     type="button"
                     onClick={() => setSubmitted(false)}
                     className="mt-10 inline-flex items-center text-[#2B2A27] text-xs tracking-widest uppercase relative group w-max pb-2"
                   >
-                    <span className="tracking-widest">
-                      EDIT MY REQUEST
-                    </span>
+                    <span className="tracking-widest">EDIT MY REQUEST</span>
                     <span className="absolute left-0 bottom-0 w-full h-px bg-[#2B2A27]/20"></span>
                     <span className="absolute left-0 bottom-0 w-full h-px bg-[#2B2A27] scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
                   </button>
@@ -330,7 +329,9 @@ export default function ReservePage() {
                 <div className="relative w-full h-64 overflow-hidden">
                   <Image
                     fill
-                    src={placeholderImages[villaIndex % placeholderImages.length]}
+                    src={
+                      placeholderImages[villaIndex % placeholderImages.length]
+                    }
                     alt={`${selectedVilla.name} at TISS Valley, Sebatu`}
                     sizes="(max-width: 1024px) 100vw, 33vw"
                     className="object-cover"
@@ -350,15 +351,11 @@ export default function ReservePage() {
                   <div className="flex flex-col gap-3 border-t border-[#2B2A27]/10 pt-6 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-[#2B2A27]/60">Check-in</span>
-                      <span className="text-[#2B2A27]">
-                        {checkIn || "—"}
-                      </span>
+                      <span className="text-[#2B2A27]">{checkIn || "—"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-[#2B2A27]/60">Check-out</span>
-                      <span className="text-[#2B2A27]">
-                        {checkOut || "—"}
-                      </span>
+                      <span className="text-[#2B2A27]">{checkOut || "—"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-[#2B2A27]/60">Nights</span>
@@ -432,15 +429,7 @@ export default function ReservePage() {
       </main>
 
       {/* Slim footer for the detail page */}
-      <footer className="bg-[#2B2A27] px-6 md:px-12 lg:px-20 py-8 text-center">
-        <p className="text-[#D8CDB6]/40 text-xs">
-          Reservations are handled directly by{" "}
-          <Link href="/" className="link-underline text-[#D8CDB6]/70">
-            TISS Valley
-          </Link>
-          , Sebatu &middot; &copy; 2026 TISS Valley
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 }

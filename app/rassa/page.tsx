@@ -6,6 +6,7 @@ import { useState } from "react";
 import Reveal from "@/components/Reveal";
 import { rassaIdeas, rassaFacts } from "@/lib/data";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function RassaPage() {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ export default function RassaPage() {
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-[#2B2A27]/80">
+            <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>
             </div>
           </div>
@@ -239,15 +240,7 @@ export default function RassaPage() {
       </main>
 
       {/* Slim footer for the detail page */}
-      <footer className="bg-[#2B2A27] px-6 md:px-12 lg:px-20 py-8 text-center">
-        <p className="text-[#D8CDB6]/40 text-xs">
-          Rassa is part of{" "}
-          <Link href="/" className="link-underline text-[#D8CDB6]/70">
-            TISS Valley
-          </Link>
-          , Sebatu &middot; &copy; 2026 TISS Valley
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 }
