@@ -5,15 +5,6 @@ import { wellnessFeatures, experienceData } from "@/lib/data";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Real assets only live under /public/assets — cycle through them per feature
-// until dedicated wellness shots are dropped in. the-valley.webp is left out
-// on purpose (see app/villas/page.tsx for why).
-const placeholderImages = [
-  "/assets/wellnes-yoga.webp",
-  "/assets/rassa.webp",
-  "/assets/hero.webp",
-];
-
 export default function WellnessPage() {
   return (
     <>
@@ -28,7 +19,7 @@ export default function WellnessPage() {
               height={1080}
               src="/assets/wellnes-yoga.webp"
               alt="Morning yoga session on a deck facing the valley"
-              className="w-full h-full object-cover hero-image"
+              className="w-full h-full object-cover hero-image -scale-x-100"
               sizes="100vw"
               priority
             />
@@ -39,30 +30,30 @@ export default function WellnessPage() {
 
           <div className="py-24 md:py-32 flex flex-col items-center">
             <div
-              className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-[#EFE7D7]/40 mb-8"
+              className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-tiss-oat/40 mb-8"
               style={{ animationDelay: "0.1s" }}
             >
-              <span className="text-[#D8CDB6] text-[10px] sm:text-xs tracking-widest uppercase">
+              <span className="text-tiss-sand text-[10px] sm:text-xs tracking-widest uppercase">
                 ADEM &middot; COOL &middot; STILL &middot; UNHURRIED
               </span>
             </div>
 
             <h1
-              className="hero-in font-spectral text-[#EFE7D7] text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-6"
+              className="hero-in font-spectral text-tiss-oat text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-6"
               style={{ animationDelay: "0.3s" }}
             >
               Wellness
             </h1>
 
             <p
-              className="hero-in text-[#7E927F] text-[10px] sm:text-xs tracking-widest uppercase mb-8"
+              className="hero-in text-tiss-sage text-[10px] sm:text-xs tracking-widest uppercase mb-8"
               style={{ animationDelay: "0.5s" }}
             >
               IN-VILLA SPA, YOGA &amp; PLANT-BASED DINING AT TISS VALLEY
             </p>
 
             <p
-              className="hero-in text-[#D8CDB6] font-light max-w-xl text-sm md:text-base leading-relaxed mb-10"
+              className="hero-in text-tiss-sand font-light max-w-xl text-sm md:text-base leading-relaxed mb-10"
               style={{ animationDelay: "0.7s" }}
             >
               A retreat, not just a stay. Every treatment, session and meal is
@@ -76,34 +67,34 @@ export default function WellnessPage() {
             >
               <a
                 href="#the-experience"
-                className="bg-[#B5765A] text-[#EFE7D7] px-8 py-4 tracking-widest text-xs uppercase transition-colors duration-300 hover:bg-[#a3684f]"
+                className="bg-tiss-clay text-tiss-oat px-8 py-4 tracking-widest text-xs uppercase transition duration-300 hover:brightness-90"
               >
                 See the offerings
               </a>
               <Link
                 href="/reserve"
-                className="text-[#EFE7D7] py-4 relative group tracking-widest text-xs uppercase"
+                className="text-tiss-oat py-4 relative group tracking-widest text-xs uppercase"
               >
                 Reserve your stay
-                <span className="absolute w-full bg-[#EFE7D7] block h-px bottom-2 left-0 transition-transform duration-300 group-hover:scale-x-110"></span>
+                <span className="absolute w-full bg-tiss-oat block h-px bottom-2 left-0 transition-transform duration-300 group-hover:scale-x-110"></span>
               </Link>
             </div>
           </div>
         </section>
 
         {/* BRAND ESSENCE — quoted verbatim from the brand book */}
-        <section className="bg-[#2E4034] px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24 text-center">
+        <section className="bg-tiss-forest px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24 text-center">
           <Reveal variant="scale">
-            <p className="text-[#7E927F] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+            <p className="text-tiss-sage text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
               BRAND ESSENCE
             </p>
-            <h2 className="font-spectral text-4xl md:text-5xl lg:text-7xl text-[#EFE7D7]">
+            <h2 className="font-spectral text-4xl md:text-5xl lg:text-7xl text-tiss-oat">
               Adem.
             </h2>
-            <p className="text-[#D8CDB6]/70 mt-4 tracking-widest text-sm mb-8">
+            <p className="text-tiss-sand/70 mt-4 tracking-widest text-sm mb-8">
               COOL &middot; STILL &middot; UNHURRIED
             </p>
-            <p className="text-[#D8CDB6] font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+            <p className="text-tiss-sand font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed">
               The essence is highland air at first light — cool, clean, and
               quiet. Every decision, from the mark to the welcome, protects that
               stillness.
@@ -114,7 +105,7 @@ export default function WellnessPage() {
         {/* FEATURES — one row per wellness offering, alternating like Rassa's concept section */}
         <section
           id="the-experience"
-          className="flex flex-col gap-24 md:gap-32 bg-[#EFE7D7] py-24 md:py-32"
+          className="flex flex-col gap-24 md:gap-32 bg-tiss-oat py-24 md:py-32"
         >
           {wellnessFeatures.map((feature, i) => (
             <div
@@ -133,19 +124,19 @@ export default function WellnessPage() {
                     height={36}
                     className="size-8 md:size-9 object-contain mb-6"
                   />
-                  <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                  <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                     0{i + 1}
                   </p>
-                  <h3 className="text-[#2B2A27] font-spectral text-3xl md:text-4xl leading-tight mb-6">
+                  <h3 className="text-tiss-charcoal font-spectral text-3xl md:text-4xl leading-tight mb-6">
                     {feature.title}
                   </h3>
-                  <p className="text-[#2B2A27]/70 text-sm md:text-base font-light leading-relaxed max-w-sm">
+                  <p className="text-tiss-charcoal/70 text-sm md:text-base font-light leading-relaxed max-w-sm">
                     {feature.desc}
                   </p>
                 </Reveal>
               </div>
 
-              <div className="w-full md:w-7/12 relative h-[50vh] md:h-[36rem] overflow-hidden bg-[#2B2A27]/5">
+              <div className="w-full md:w-7/12 relative h-[50vh] md:h-[36rem] overflow-hidden bg-tiss-charcoal/5">
                 <Reveal delay={150} className="w-full h-full">
                   <Image
                     fill
@@ -161,12 +152,12 @@ export default function WellnessPage() {
         </section>
 
         {/* EXPERIENCE GRID — "Care without fuss." (Brand Value, quoted verbatim) */}
-        <section className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 pb-16 md:pb-20 lg:pb-24">
+        <section className="bg-tiss-oat px-6 md:px-12 lg:px-20 pb-16 md:pb-20 lg:pb-24">
           <Reveal className="mb-12 md:mb-16 text-left">
-            <p className="text-[#2E4034]/60 text-[10px] sm:text-xs tracking-widest mb-3 uppercase">
+            <p className="text-tiss-forest/60 text-[10px] sm:text-xs tracking-widest mb-3 uppercase">
               CARE WITHOUT FUSS
             </p>
-            <h2 className="font-spectral text-4xl md:text-5xl text-[#2E4034]">
+            <h2 className="font-spectral text-4xl md:text-5xl text-tiss-forest">
               Warm, unhurried, never performed.
             </h2>
           </Reveal>
@@ -178,7 +169,7 @@ export default function WellnessPage() {
                 delay={i * 70}
                 className="flex flex-col items-center text-center gap-4"
               >
-                <div className="size-16 md:size-[72px] rounded-full bg-[#D8CDB6] flex items-center justify-center transition-transform duration-300 hover:scale-105">
+                <div className="size-16 md:size-[72px] rounded-full bg-tiss-sand flex items-center justify-center transition-transform duration-300 hover:scale-105">
                   <Image
                     src={icon}
                     alt=""
@@ -188,7 +179,7 @@ export default function WellnessPage() {
                     className="size-5 md:size-6 object-contain"
                   />
                 </div>
-                <p className="text-[#2E4034]/80 text-xs md:text-sm font-light">
+                <p className="text-tiss-forest/80 text-xs md:text-sm font-light">
                   {label}
                 </p>
               </Reveal>
@@ -199,17 +190,17 @@ export default function WellnessPage() {
         {/* CLOSING CTA */}
         <section
           id="reserve"
-          className="bg-[#B5765A] px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24 text-center"
+          className="bg-tiss-clay px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24 text-center"
         >
           <Reveal>
-            <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl text-[#EFE7D7] mb-10">
+            <h2 className="font-spectral text-3xl md:text-4xl lg:text-5xl text-tiss-oat mb-10">
               A retreat,
               <br />
               not just a stay.
             </h2>
             <Link
               href="/reserve"
-              className="inline-block bg-[#2B2A27] text-[#EFE7D7] px-8 py-4 tracking-widest text-sm transition-colors duration-300 hover:brightness-110"
+              className="inline-block bg-tiss-charcoal text-tiss-oat px-8 py-4 tracking-widest text-sm transition-colors duration-300 hover:brightness-110"
             >
               CHECK AVAILABILITY
             </Link>

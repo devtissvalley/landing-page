@@ -41,7 +41,7 @@ export default function Home() {
               height={960}
               src="/assets/tiss-hero.webp"
               alt="A pool villa at TISS Valley overlooking the highland rice terraces of Sebatu, Bali"
-              className="w-full h-full object-cover hero-image -scale-x-100"
+              className="w-full h-full object-cover hero-image"
               sizes="100vw"
               priority
               fetchPriority="high"
@@ -90,7 +90,7 @@ export default function Home() {
               >
                 <Link
                   href="/reserve"
-                  className="bg-tiss-clay py-5 px-5 text-tiss-oat transition-colors duration-300 hover:brightness-90"
+                  className="bg-tiss-clay py-5 px-5 text-tiss-oat transition duration-300 hover:brightness-90"
                 >
                   <span className="tracking-widest">RESERVE YOUR STAY</span>
                 </Link>
@@ -480,7 +480,7 @@ export default function Home() {
 
               <button
                 type="button"
-                className="bg-tiss-clay text-tiss-oat px-8 py-3 md:px-10 md:py-4 tracking-widest text-xs uppercase cursor-pointer transition-colors duration-300 hover:brightness-90"
+                className="bg-tiss-clay text-tiss-oat px-8 py-3 md:px-10 md:py-4 tracking-widest text-xs uppercase cursor-pointer transition duration-300 hover:brightness-90"
               >
                 ABOUT RASSA
               </button>

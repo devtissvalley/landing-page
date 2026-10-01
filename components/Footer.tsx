@@ -11,7 +11,7 @@ interface FooterProps {
 export default function Footer({ onOpenRassa }: FooterProps = {}) {
   return (
     <footer className="bg-tiss-charcoal px-6 md:px-12 lg:px-20 py-12 md:py-16">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 pb-10 border-b border-[#3E3D3A]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 pb-10 border-b border-tiss-oat/10">
         <div>
           <Link href="/" aria-label="TISS Valley — home">
             <Image

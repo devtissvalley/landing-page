@@ -9,15 +9,6 @@ import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Real assets only live under /public/assets — cycle through them per villa
-// until dedicated villa-*.webp shots are dropped in. the-valley.webp is left
-// out on purpose (see app/villas/page.tsx for why).
-const placeholderImages = [
-  "/assets/hero.webp",
-  "/assets/wellnes-yoga.webp",
-  "/assets/rassa.webp",
-];
-
 function nightsBetween(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return 0;
   const inDate = new Date(checkIn);
@@ -73,36 +64,36 @@ export default function ReservePage() {
             <Image
               width={1920}
               height={1080}
-              src="/assets/hero.webp"
+              src="/assets/tiss-hero.webp"
               alt="A pool villa set into the highland rice terraces"
-              className="w-full h-full object-cover hero-image"
+              className="w-full h-full object-cover hero-image -scale-x-100"
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-[#2B2A27]/85">
+            <div className="absolute inset-0 bg-tiss-charcoal/85">
               <span className="sr-only">dark backdrop</span>
             </div>
           </div>
 
           <div className="flex flex-col items-center">
             <div
-              className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-[#EFE7D7]/40 mb-8"
+              className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-tiss-oat/40 mb-8"
               style={{ animationDelay: "0.1s" }}
             >
-              <span className="text-[#D8CDB6] text-[10px] sm:text-xs tracking-widest uppercase">
+              <span className="text-tiss-sand text-[10px] sm:text-xs tracking-widest uppercase">
                 SIX VILLAS &middot; ONE QUIET VALLEY
               </span>
             </div>
 
             <h1
-              className="hero-in font-spectral text-[#EFE7D7] text-5xl sm:text-6xl md:text-7xl mb-6"
+              className="hero-in font-spectral text-tiss-oat text-5xl sm:text-6xl md:text-7xl mb-6"
               style={{ animationDelay: "0.3s" }}
             >
               Reserve Your Stay
             </h1>
 
             <p
-              className="hero-in text-[#D8CDB6] font-light max-w-lg text-sm md:text-base leading-relaxed mb-8"
+              className="hero-in text-tiss-sand font-light max-w-lg text-sm md:text-base leading-relaxed mb-8"
               style={{ animationDelay: "0.5s" }}
             >
               Tell us your dates and which villa calls to you — our team
@@ -112,7 +103,7 @@ export default function ReservePage() {
 
             <a
               href="#book"
-              className="hero-in bg-[#B5765A] text-[#EFE7D7] px-8 py-4 tracking-widest text-xs uppercase transition-colors duration-300 hover:bg-[#a3684f]"
+              className="hero-in bg-tiss-clay text-tiss-oat px-8 py-4 tracking-widest text-xs uppercase transition duration-300 hover:brightness-90"
               style={{ animationDelay: "0.7s" }}
             >
               Start your request
@@ -123,45 +114,45 @@ export default function ReservePage() {
         {/* BOOKING FORM + SUMMARY */}
         <section
           id="book"
-          className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24"
+          className="bg-tiss-oat px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
             {/* FORM */}
             <Reveal className="lg:col-span-3">
               {submitted ? (
-                <div className="border border-[#2B2A27]/15 px-8 py-12 md:px-12 md:py-16">
-                  <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                <div className="border border-tiss-charcoal/15 px-8 py-12 md:px-12 md:py-16">
+                  <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                     REQUEST SENT
                   </p>
-                  <h2 className="font-spectral text-3xl md:text-4xl text-[#2B2A27] mb-6">
+                  <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
                     Thank you, {name.split(" ")[0] || "there"}.
                   </h2>
-                  <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-md">
+                  <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
                     We&rsquo;ve noted your request for {selectedVilla.name}
                     {nights > 0
                       ? ` — ${nights} night${nights > 1 ? "s" : ""}`
                       : ""}
                     . Our team will confirm availability and pricing at{" "}
-                    <span className="text-[#2B2A27]">{email}</span> within 24
+                    <span className="text-tiss-charcoal">{email}</span> within 24
                     hours.
                   </p>
                   <button
                     type="button"
                     onClick={() => setSubmitted(false)}
-                    className="mt-10 inline-flex items-center text-[#2B2A27] text-xs tracking-widest uppercase relative group w-max pb-2"
+                    className="mt-10 inline-flex items-center text-tiss-charcoal text-xs tracking-widest uppercase relative group w-max pb-2"
                   >
                     <span className="tracking-widest">EDIT MY REQUEST</span>
-                    <span className="absolute left-0 bottom-0 w-full h-px bg-[#2B2A27]/20"></span>
-                    <span className="absolute left-0 bottom-0 w-full h-px bg-[#2B2A27] scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
+                    <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal/20"></span>
+                    <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-10">
                   <div>
-                    <p className="text-[#2B2A27]/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                    <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                       YOUR STAY
                     </p>
-                    <h2 className="font-spectral text-3xl md:text-4xl text-[#2B2A27]">
+                    <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
                       Request a reservation.
                     </h2>
                   </div>
@@ -169,7 +160,7 @@ export default function ReservePage() {
                   <div>
                     <label
                       htmlFor="villa"
-                      className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                     >
                       Villa
                     </label>
@@ -177,7 +168,7 @@ export default function ReservePage() {
                       id="villa"
                       value={villaIndex}
                       onChange={(e) => setVillaIndex(Number(e.target.value))}
-                      className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] py-3 text-sm md:text-base outline-none focus:border-[#2B2A27] appearance-none"
+                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal appearance-none"
                     >
                       {villas.map((villa, i) => (
                         <option key={villa.name} value={i}>
@@ -191,7 +182,7 @@ export default function ReservePage() {
                     <div>
                       <label
                         htmlFor="checkIn"
-                        className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                       >
                         Check-in
                       </label>
@@ -202,13 +193,13 @@ export default function ReservePage() {
                         min={today}
                         value={checkIn}
                         onChange={(e) => setCheckIn(e.target.value)}
-                        className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] py-3 text-sm md:text-base outline-none focus:border-[#2B2A27]"
+                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
                       />
                     </div>
                     <div>
                       <label
                         htmlFor="checkOut"
-                        className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                       >
                         Check-out
                       </label>
@@ -219,7 +210,7 @@ export default function ReservePage() {
                         min={checkIn || today}
                         value={checkOut}
                         onChange={(e) => setCheckOut(e.target.value)}
-                        className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] py-3 text-sm md:text-base outline-none focus:border-[#2B2A27]"
+                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
                       />
                     </div>
                   </div>
@@ -227,7 +218,7 @@ export default function ReservePage() {
                   <div>
                     <label
                       htmlFor="guests"
-                      className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                     >
                       Guests
                     </label>
@@ -235,7 +226,7 @@ export default function ReservePage() {
                       id="guests"
                       value={guests}
                       onChange={(e) => setGuests(Number(e.target.value))}
-                      className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] py-3 text-sm md:text-base outline-none focus:border-[#2B2A27] appearance-none"
+                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal appearance-none"
                     >
                       <option value={1}>1 guest</option>
                       <option value={2}>2 guests</option>
@@ -246,7 +237,7 @@ export default function ReservePage() {
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                       >
                         Full name
                       </label>
@@ -257,13 +248,13 @@ export default function ReservePage() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Your name"
-                        className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] placeholder:text-[#2B2A27]/35 py-3 text-sm md:text-base outline-none focus:border-[#2B2A27]"
+                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
                       />
                     </div>
                     <div>
                       <label
                         htmlFor="phone"
-                        className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                       >
                         Phone (optional)
                       </label>
@@ -273,7 +264,7 @@ export default function ReservePage() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+62 ..."
-                        className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] placeholder:text-[#2B2A27]/35 py-3 text-sm md:text-base outline-none focus:border-[#2B2A27]"
+                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
                       />
                     </div>
                   </div>
@@ -281,7 +272,7 @@ export default function ReservePage() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                     >
                       Email
                     </label>
@@ -292,14 +283,14 @@ export default function ReservePage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@email.com"
-                      className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] placeholder:text-[#2B2A27]/35 py-3 text-sm md:text-base outline-none focus:border-[#2B2A27]"
+                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="notes"
-                      className="block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2"
+                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
                     >
                       Special requests (optional)
                     </label>
@@ -309,13 +300,13 @@ export default function ReservePage() {
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Anniversary, dietary needs, late arrival..."
-                      className="w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] placeholder:text-[#2B2A27]/35 py-3 text-sm md:text-base outline-none focus:border-[#2B2A27] resize-none"
+                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="self-start bg-[#B5765A] text-[#EFE7D7] px-10 py-4 tracking-widest text-xs uppercase cursor-pointer transition-colors duration-300 hover:bg-[#a3684f]"
+                    className="self-start bg-tiss-clay text-tiss-oat px-10 py-4 tracking-widest text-xs uppercase cursor-pointer transition duration-300 hover:brightness-90"
                   >
                     Check availability
                   </button>
@@ -325,51 +316,49 @@ export default function ReservePage() {
 
             {/* SUMMARY */}
             <Reveal delay={150} className="lg:col-span-2">
-              <div className="border border-[#2B2A27]/15">
+              <div className="border border-tiss-charcoal/15">
                 <div className="relative w-full h-64 overflow-hidden">
                   <Image
                     fill
-                    src={
-                      placeholderImages[villaIndex % placeholderImages.length]
-                    }
+                    src={selectedVilla.src}
                     alt={`${selectedVilla.name} at TISS Valley, Sebatu`}
                     sizes="(max-width: 1024px) 100vw, 33vw"
                     className="object-cover"
                   />
                 </div>
                 <div className="p-8">
-                  <p className="text-[#B5765A] text-[10px] tracking-widest mb-3 uppercase">
+                  <p className="text-tiss-clay text-[10px] tracking-widest mb-3 uppercase">
                     Villa 0{villaIndex + 1}
                   </p>
-                  <h3 className="text-[#2B2A27] font-spectral text-2xl mb-3">
+                  <h3 className="text-tiss-charcoal font-spectral text-2xl mb-3">
                     {selectedVilla.name}
                   </h3>
-                  <p className="text-[#2B2A27]/70 text-sm font-light leading-relaxed mb-6">
+                  <p className="text-tiss-charcoal/70 text-sm font-light leading-relaxed mb-6">
                     {selectedVilla.caption}
                   </p>
 
-                  <div className="flex flex-col gap-3 border-t border-[#2B2A27]/10 pt-6 mb-6">
+                  <div className="flex flex-col gap-3 border-t border-tiss-charcoal/10 pt-6 mb-6">
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Check-in</span>
-                      <span className="text-[#2B2A27]">{checkIn || "—"}</span>
+                      <span className="text-tiss-charcoal/60">Check-in</span>
+                      <span className="text-tiss-charcoal">{checkIn || "—"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Check-out</span>
-                      <span className="text-[#2B2A27]">{checkOut || "—"}</span>
+                      <span className="text-tiss-charcoal/60">Check-out</span>
+                      <span className="text-tiss-charcoal">{checkOut || "—"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Nights</span>
-                      <span className="text-[#2B2A27]">
+                      <span className="text-tiss-charcoal/60">Nights</span>
+                      <span className="text-tiss-charcoal">
                         {nights > 0 ? nights : "—"}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Guests</span>
-                      <span className="text-[#2B2A27]">{guests}</span>
+                      <span className="text-tiss-charcoal/60">Guests</span>
+                      <span className="text-tiss-charcoal">{guests}</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3 border-t border-[#2B2A27]/10 pt-6">
+                  <div className="flex flex-col gap-3 border-t border-tiss-charcoal/10 pt-6">
                     {villaFeatures.map((feature) => (
                       <div
                         key={feature.text}
@@ -384,7 +373,7 @@ export default function ReservePage() {
                           height={16}
                           className="size-4 object-contain shrink-0"
                         />
-                        <span className="text-[#2B2A27]/70 text-xs font-light">
+                        <span className="text-tiss-charcoal/70 text-xs font-light">
                           {feature.text}
                         </span>
                       </div>
@@ -394,10 +383,10 @@ export default function ReservePage() {
               </div>
 
               <div className="mt-8 px-2">
-                <p className="text-[#2B2A27]/60 text-[10px] tracking-widest mb-4 uppercase">
+                <p className="text-tiss-charcoal/60 text-[10px] tracking-widest mb-4 uppercase">
                   Prefer to talk it through?
                 </p>
-                <div className="flex items-center gap-5 text-[#2B2A27]/70">
+                <div className="flex items-center gap-5 text-tiss-charcoal/70">
                   <a
                     href="tel:+6281139808151"
                     className="flex items-center gap-2 text-sm link-underline"

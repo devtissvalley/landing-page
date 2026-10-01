@@ -8,8 +8,6 @@ import { navLinks } from "@/lib/data";
 import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
 
 interface NavbarProps {
-  // Optional: detail pages mount the navbar without a handler and the RASSA
-  // entry falls back to a plain link to /rassa.
   onOpenRassa?: () => void;
 }
 
@@ -19,8 +17,6 @@ const navRoutes: Record<string, string> = {
   WELLNESS: "/wellness",
 };
 
-// Active entry is painted in the clay accent; "/" only matches the landing
-// page exactly, the detail routes also match their nested paths.
 const isActiveRoute = (pathname: string, href: string) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -112,9 +108,7 @@ export default function Navbar({ onOpenRassa }: NavbarProps = {}) {
                 <Link
                   key={link}
                   href={navRoutes[link]}
-                  aria-current={
-                    isActive(navRoutes[link]) ? "page" : undefined
-                  }
+                  aria-current={isActive(navRoutes[link]) ? "page" : undefined}
                   className={`link-underline ${
                     isActive(navRoutes[link]) ? "text-tiss-clay" : ""
                   }`}

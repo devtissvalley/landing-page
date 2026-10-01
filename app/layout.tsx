@@ -93,6 +93,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // globals.css sets scroll-behavior: smooth for #anchor links; this tells
+      // Next.js to jump (not glide) to the top when the route changes.
+      data-scroll-behavior="smooth"
       className={`${spectral.variable} ${hankenGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
