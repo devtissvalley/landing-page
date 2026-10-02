@@ -43,7 +43,7 @@ export default function Home() {
               alt="A pool villa at TISS Valley overlooking the highland rice terraces of Sebatu, Bali"
               className="w-full h-full object-cover hero-image"
               sizes="100vw"
-              priority
+              loading="eager"
               fetchPriority="high"
             />
             <div className="w-full h-screen bg-black/60 absolute top-0 left-0">
@@ -67,7 +67,7 @@ export default function Home() {
                   style={{ animationDelay: "0.3s" }}
                 >
                   Stay in the
-                </span>
+                </span>{" "}
                 <span
                   className="hero-in block"
                   style={{ animationDelay: "0.5s" }}
@@ -621,15 +621,17 @@ export default function Home() {
 
           <dl className="max-w-3xl mx-auto border-t border-tiss-charcoal/15">
             {FAQS.map((faq, i) => (
-              <Reveal key={faq.question} delay={i * 60}>
-                <div className="py-6 md:py-7 border-b border-tiss-charcoal/15">
-                  <dt className="font-spectral text-lg md:text-xl text-tiss-charcoal mb-3">
-                    {faq.question}
-                  </dt>
-                  <dd className="font-light text-sm md:text-base text-tiss-charcoal/70 leading-relaxed">
-                    {faq.answer}
-                  </dd>
-                </div>
+              <Reveal
+                key={faq.question}
+                delay={i * 60}
+                className="py-6 md:py-7 border-b border-tiss-charcoal/15"
+              >
+                <dt className="font-spectral text-lg md:text-xl text-tiss-charcoal mb-3">
+                  {faq.question}
+                </dt>
+                <dd className="font-light text-sm md:text-base text-tiss-charcoal/70 leading-relaxed">
+                  {faq.answer}
+                </dd>
               </Reveal>
             ))}
           </dl>

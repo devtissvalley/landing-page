@@ -14,7 +14,9 @@ import "./globals.css";
 
 const spectral = Spectral({
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  // Only what the site uses: 400 (headings), 500 (a few h3s), and 400
+  // italic (one pull quote). Each extra weight/style is another font file.
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   variable: "--font-spectral",
   display: "swap",
@@ -23,14 +25,15 @@ const spectral = Spectral({
 const hankenGrotesk = Hanken_Grotesk({
   subsets: ["latin"],
   weight: "variable",
-  style: ["normal", "italic"],
+  // No italic body copy anywhere, so the italic file isn't shipped.
+  style: ["normal"],
   variable: "--font-hanken",
   display: "swap",
 });
 
 const title = "TISS Valley — Pool Villas in Sebatu, Above Tegallalang, Bali";
 const description =
-  "Six one-bedroom pool villas set into the highland rice terraces of Sebatu, above the Tegallalang terraces in Gianyar, Bali — 25 minutes from central Ubud. Private plunge pools, valley views, in-villa spa and plant-based dining.";
+  "Six one-bedroom pool villas in the highland rice terraces of Sebatu, above Tegallalang, Bali. Private plunge pools, valley views, 25 minutes from Ubud.";
 
 export const metadata: Metadata = {
   // Makes every relative URL below (OG image, canonicals) resolve absolutely,

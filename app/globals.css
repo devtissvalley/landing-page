@@ -119,34 +119,52 @@
   animation: sidebar-link-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Page transitions — a curtain (components/PageCurtain.tsx, app/template.tsx).
-   Cover: while the view transition runs, the old page holds still, the new
-   page stays hidden and the curtain slides down over the old page.
-   Reveal: the curtain is then a real element covering the new page, and
-   slides down off the bottom once the cover has finished. */
+/* Page transitions — a paneled curtain (components/PageCurtain.tsx).
+   Cover: while the view transition runs, the old page dims a little, the new
+   page stays hidden, and the panels drop in one after another. They animate
+   in the DOM; the transition shows the curtain live above the old page.
+   Reveal: once the last panel lands, PageCurtain ends the transition and adds
+   .is-revealing; the panels carry on down and off the bottom in order. */
 :root {
-  --curtain-ease: cubic-bezier(0.76, 0, 0.24, 1);
-  --curtain-cover: 650ms;
-  --curtain-reveal: 850ms;
+  --curtain-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Leaves briskly, then settles slowly as the new page appears. */
+  --curtain-reveal-ease: cubic-bezier(0.45, 0, 0.15, 1);
+  --curtain-panel: 500ms;
+  --curtain-stagger: 55ms;
+  /* Last panel (index 4) lands at panel + 4 × stagger. */
+  --curtain-cover-total: calc(var(--curtain-panel) + 4 * var(--curtain-stagger));
 }
 ::view-transition-old(root),
 ::view-transition-new(root),
-::view-transition-old(.page-out) {
+::view-transition-new(page-curtain) {
   animation: none;
 }
+::view-transition-old(.page-out) {
+  animation: var(--curtain-cover-total) var(--curtain-ease) both page-dim;
+}
 ::view-transition-new(.page-in) {
-  animation: var(--curtain-cover) both page-hidden;
+  animation: var(--curtain-cover-total) both page-hidden;
 }
 ::view-transition-group(page-curtain) {
   z-index: 100;
 }
-::view-transition-new(page-curtain) {
-  animation: var(--curtain-cover) var(--curtain-ease) both curtain-cover;
-}
 .page-curtain {
   view-transition-name: page-curtain;
-  animation: var(--curtain-reveal) var(--curtain-ease) var(--curtain-cover)
-    both curtain-reveal;
+}
+.page-curtain-panel {
+  /* Overlap by a pixel so no hairline shows between neighbours. */
+  margin-right: -1px;
+  animation: var(--curtain-panel) var(--curtain-ease)
+    calc(var(--i) * var(--curtain-stagger)) both curtain-panel-in;
+}
+.is-revealing .page-curtain-panel {
+  animation: var(--curtain-panel) var(--curtain-reveal-ease)
+    calc(var(--i) * var(--curtain-stagger)) both curtain-panel-out;
+}
+@keyframes page-dim {
+  to {
+    filter: brightness(0.7);
+  }
 }
 @keyframes page-hidden {
   from,
@@ -154,7 +172,7 @@
     opacity: 0;
   }
 }
-@keyframes curtain-cover {
+@keyframes curtain-panel-in {
   from {
     translate: 0 -100%;
   }
@@ -162,7 +180,7 @@
     translate: 0 0;
   }
 }
-@keyframes curtain-reveal {
+@keyframes curtain-panel-out {
   from {
     translate: 0 0;
   }

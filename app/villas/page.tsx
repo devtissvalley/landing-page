@@ -30,7 +30,8 @@ export default function VillasPage() {
               alt="A pool villa set into the highland rice terraces"
               className="w-full h-full object-cover"
               sizes="100vw"
-              priority
+              loading="eager"
+              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>

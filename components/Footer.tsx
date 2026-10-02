@@ -29,9 +29,9 @@ export default function Footer({ onOpenRassa }: FooterProps = {}) {
         </div>
 
         <div>
-          <h4 className="text-tiss-sage text-sm tracking-widest mb-4">
+          <h2 className="text-tiss-sage text-sm tracking-widest mb-4">
             EXPLORE
-          </h4>
+          </h2>
           <ul className="flex flex-col gap-3 text-tiss-sand/80 text-sm">
             <li>
               <Link href="/">The Valley</Link>
@@ -65,9 +65,9 @@ export default function Footer({ onOpenRassa }: FooterProps = {}) {
         </div>
 
         <div>
-          <h4 className="text-tiss-sage text-sm tracking-widest mb-4">
+          <h2 className="text-tiss-sage text-sm tracking-widest mb-4">
             CONTACT
-          </h4>
+          </h2>
           <ul className="flex flex-col gap-3 text-tiss-sand/80 text-sm">
             <li>
               <a
@@ -90,9 +90,9 @@ export default function Footer({ onOpenRassa }: FooterProps = {}) {
         </div>
 
         <div>
-          <h4 className="text-tiss-sage text-sm tracking-widest mb-4">
+          <h2 className="text-tiss-sage text-sm tracking-widest mb-4">
             FOLLOW
-          </h4>
+          </h2>
           <ul className="flex flex-col gap-3 text-tiss-sand/80 text-sm">
             <li className="flex items-center gap-2">
               <IconInstagram className="size-4" />
@@ -113,7 +113,7 @@ export default function Footer({ onOpenRassa }: FooterProps = {}) {
         </div>
       </div>
       <p className="text-center text-tiss-sand/40 text-xs pt-8">
-        &copy; 2026 TISS Valley, Sebatu &middot; All rights reserved.
+        &copy; 2026 TISS Valley, Sebatu &middot; Develop by groundworkpeople.com
       </p>
     </footer>
   );

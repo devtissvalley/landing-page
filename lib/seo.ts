@@ -6,6 +6,8 @@
 // and amenity lists) — nothing is invented. If a fact changes, change it here
 // and in lib/data.tsx together.
 
+import type { Metadata } from "next";
+
 export const SITE_URL = "https://tissvalley.com";
 
 export const BUSINESS = {
@@ -15,6 +17,8 @@ export const BUSINESS = {
   streetAddress: "Jl. Sebatu",
   locality: "Sebatu",
   region: "Bali",
+  // As printed under the map on /location
+  postalCode: "80561",
   // Sebatu sits in the Tegallalang district of Gianyar Regency
   district: "Tegallalang",
   county: "Gianyar",
@@ -36,6 +40,45 @@ export const DEFAULT_OG_IMAGE = {
 
 /** Absolute URL for a site-relative path. */
 export const absoluteUrl = (path = "/") => new URL(path, SITE_URL).toString();
+
+/**
+ * Full metadata for a detail page. Next.js replaces (not merges) a child's
+ * `openGraph` / `twitter` objects with the parent's, so every page has to
+ * restate the share image, site name, locale and card type itself — without
+ * them, links shared on WhatsApp, Facebook or X show no preview image.
+ *
+ * Keep `description` under ~155 characters; Google truncates beyond that.
+ */
+export const pageMetadata = ({
+  path,
+  title,
+  description,
+}: {
+  path: string;
+  title: string;
+  description: string;
+}): Metadata => ({
+  // `absolute` opts out of the root layout's "%s — TISS Valley" template so
+  // the title tag carries the full descriptive line rather than one word.
+  title: { absolute: title },
+  description,
+  alternates: { canonical: path },
+  openGraph: {
+    type: "website",
+    siteName: BUSINESS.name,
+    locale: "en_US",
+    title,
+    description,
+    url: path,
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [absoluteUrl(DEFAULT_OG_IMAGE.url)],
+  },
+});
 
 /**
  * Amenities the site actually lists (lib/data.tsx `experienceData` and
@@ -70,6 +113,7 @@ const postalAddress = {
   streetAddress: BUSINESS.streetAddress,
   addressLocality: BUSINESS.locality,
   addressRegion: BUSINESS.region,
+  postalCode: BUSINESS.postalCode,
   addressCountry: BUSINESS.country,
 };
 

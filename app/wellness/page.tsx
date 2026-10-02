@@ -21,7 +21,8 @@ export default function WellnessPage() {
               alt="Morning yoga session on a deck facing the valley"
               className="w-full h-full object-cover hero-image -scale-x-100"
               sizes="100vw"
-              priority
+              loading="eager"
+              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>

@@ -21,7 +21,8 @@ export default function LocationPage() {
               alt="The highland terraces above Sebatu at first light"
               className="w-full h-full object-cover hero-image"
               sizes="100vw"
-              priority
+              loading="eager"
+              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>

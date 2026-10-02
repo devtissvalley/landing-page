@@ -26,7 +26,8 @@ export default function RassaPage() {
               alt="Plant-based produce prepared at Rassa"
               className="w-full h-full object-cover hero-image -scale-x-100"
               sizes="100vw"
-              priority
+              loading="eager"
+              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-black/60">
               <span className="sr-only">dark backdrop</span>

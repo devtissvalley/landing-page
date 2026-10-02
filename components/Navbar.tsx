@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { navLinks } from "@/lib/data";
+import { BUSINESS } from "@/lib/seo";
 import { IconPhone, IconInstagram, IconWhatsApp } from "./Icons";
 
 interface NavbarProps {
@@ -98,6 +99,9 @@ export default function Navbar({ onOpenRassa }: NavbarProps = {}) {
               height={200}
               src="/logo/tiss-valley.png"
               alt="TISS Valley"
+              // Above the fold on every page (and the LCP element on the
+              // home page, where the hero copy starts faded out).
+              loading="eager"
               className="w-16 md:w-20 lg:w-24 h-auto object-contain transition-all duration-700"
             />
           </Link>
@@ -344,15 +348,26 @@ export default function Navbar({ onOpenRassa }: NavbarProps = {}) {
                 transitionDelay: `${(navLinks.length + 3) * 70 + 150}ms`,
               }}
             >
-              <a href="#" className="hover:text-tiss-oat transition-colors">
+              <a
+                href={`tel:${BUSINESS.telephone.replace(/\s/g, "")}`}
+                aria-label={`Call TISS Valley on ${BUSINESS.telephone}`}
+                className="hover:text-tiss-oat transition-colors"
+              >
                 <IconPhone className="size-5" />
               </a>
               <span className="w-px h-4 bg-tiss-oat/15" />
-              <a href="#" className="hover:text-tiss-oat transition-colors">
+              {/* No Instagram URL yet (the footer shows it as plain text too). */}
+              <span aria-label="Instagram" role="img">
                 <IconInstagram className="size-5" />
-              </a>
+              </span>
               <span className="w-px h-4 bg-tiss-oat/15" />
-              <a href="#" className="hover:text-tiss-oat transition-colors">
+              <a
+                href={BUSINESS.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Message TISS Valley on WhatsApp"
+                className="hover:text-tiss-oat transition-colors"
+              >
                 <IconWhatsApp className="size-5" />
               </a>
             </div>
