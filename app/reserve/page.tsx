@@ -8,6 +8,7 @@ import type { RoomOffer } from "@/lib/beds24";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { BUSINESS } from "@/lib/seo";
 
 const MAX_GUESTS = Math.max(...beds24Rooms.map((v) => v.maxGuests));
 
@@ -25,8 +26,6 @@ function nightsBetween(checkIn: string, checkOut: string) {
   return diff > 0 ? diff : 0;
 }
 
-type Step = "search" | "details" | "done";
-type Result = { status: "sent" | "dry-run"; bookingId?: number | null };
 
 const inputClass =
   "w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal";
@@ -38,7 +37,6 @@ const primaryButton =
 export default function ReservePage() {
   const today = new Date().toISOString().split("T")[0];
 
-  const [step, setStep] = useState<Step>("search");
   const [villaIndex, setVillaIndex] = useState(0);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -48,18 +46,28 @@ export default function ReservePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [notes, setNotes] = useState("");
-  const [result, setResult] = useState<Result | null>(null);
-
   const selectedVilla = beds24Rooms[villaIndex];
   const nights = nightsBetween(checkIn, checkOut);
   const offerFor = (roomId: number) =>
     offers?.find((o) => o.roomId === roomId);
   const selectedOffer = offerFor(selectedVilla.roomId);
+
+  // Booking is finished on WhatsApp for now: open a chat with the stay
+  // already written out.
+  const whatsappLink = `${BUSINESS.whatsapp}?text=${encodeURIComponent(
+    [
+      "Hi TISS Valley, I'd like to book:",
+      `Villa: ${selectedVilla.name}`,
+      `Check-in: ${checkIn}`,
+      `Check-out: ${checkOut} (${nights} ${nights === 1 ? "night" : "nights"})`,
+      `Guests: ${guests}`,
+      selectedOffer?.price != null
+        ? `Price shown: ${idr.format(selectedOffer.price)}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  )}`;
 
   // Pre-select the villa when arriving from a per-villa "Reserve"/"Check
   // rates" link (e.g. /reserve?villa=Pool%20View%20Villa). Read on mount via
@@ -106,37 +114,6 @@ export default function ReservePage() {
       }
     } catch (err) {
       setOffers(null);
-      setError(err instanceof Error ? err.message : "Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const requestBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/booking", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          roomId: selectedVilla.roomId,
-          checkin: checkIn,
-          checkout: checkOut,
-          guests,
-          firstName,
-          lastName,
-          email,
-          phone,
-          notes,
-        }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Please try again.");
-      setResult(body);
-      setStep("done");
-    } catch (err) {
       setError(err instanceof Error ? err.message : "Please try again.");
     } finally {
       setLoading(false);
@@ -208,7 +185,6 @@ export default function ReservePage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
             <Reveal className="lg:col-span-3">
-              {step === "search" && (
                 <div className="flex flex-col gap-10">
                   <form
                     onSubmit={checkAvailability}
@@ -216,7 +192,7 @@ export default function ReservePage() {
                   >
                     <div>
                       <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                        STEP 1 OF 2 &middot; YOUR STAY
+                        YOUR STAY
                       </p>
                       <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
                         Book your stay.
@@ -294,7 +270,15 @@ export default function ReservePage() {
 
                   {error && (
                     <p className="text-tiss-clay text-sm" role="alert">
-                      {error}
+                      {error}{" "}
+                      <a
+                        href={BUSINESS.whatsapp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        Open WhatsApp
+                      </a>
                     </p>
                   )}
 
@@ -348,175 +332,28 @@ export default function ReservePage() {
                         );
                       })}
 
-                      <button
-                        type="button"
-                        disabled={!selectedOffer?.available}
-                        onClick={() => {
-                          setError("");
-                          setStep("details");
-                        }}
-                        className={`${primaryButton} mt-6`}
-                      >
-                        Continue with {selectedVilla.name}
-                      </button>
+                      {selectedOffer?.available && (
+                        <>
+                          <a
+                            href={whatsappLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${primaryButton} mt-6 inline-flex items-center gap-3`}
+                          >
+                            <IconWhatsApp className="size-4" />
+                            Book {selectedVilla.name} via WhatsApp
+                          </a>
+                          <p className="-mt-2 text-tiss-charcoal/50 text-xs font-light max-w-md">
+                            Opens WhatsApp with your dates filled in. Our team
+                            confirms your booking and sends payment details
+                            there.
+                          </p>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
 
-              {step === "details" && (
-                <form onSubmit={requestBooking} className="flex flex-col gap-10">
-                  <div>
-                    <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                      STEP 2 OF 2 &middot; YOUR DETAILS
-                    </p>
-                    <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
-                      Who&rsquo;s staying?
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="firstName" className={labelClass}>
-                        First name
-                      </label>
-                      <input
-                        id="firstName"
-                        required
-                        autoComplete="given-name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className={inputClass}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="lastName" className={labelClass}>
-                        Last name
-                      </label>
-                      <input
-                        id="lastName"
-                        required
-                        autoComplete="family-name"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="email" className={labelClass}>
-                        Email
-                      </label>
-                      <input
-                        id="email"
-                        type="email"
-                        required
-                        autoComplete="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@email.com"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className={labelClass}>
-                        Phone / WhatsApp
-                      </label>
-                      <input
-                        id="phone"
-                        type="tel"
-                        autoComplete="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+62 ..."
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="notes" className={labelClass}>
-                      Special requests (optional)
-                    </label>
-                    <textarea
-                      id="notes"
-                      rows={3}
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Anniversary, dietary needs, late arrival..."
-                      className={`${inputClass} resize-none`}
-                    />
-                  </div>
-
-                  {error && (
-                    <p className="text-tiss-clay text-sm" role="alert">
-                      {error}
-                    </p>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-6">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className={primaryButton}
-                    >
-                      {loading ? "Sending…" : "Request booking"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setError("");
-                        setStep("search");
-                      }}
-                      className="text-tiss-charcoal text-xs tracking-widest uppercase link-underline cursor-pointer"
-                    >
-                      Back
-                    </button>
-                  </div>
-                  <p className="-mt-6 text-tiss-charcoal/50 text-xs font-light max-w-md">
-                    No payment now. Our team confirms your booking and sends
-                    payment details by email or WhatsApp.
-                  </p>
-                </form>
-              )}
-
-              {step === "done" && result && (
-                <div className="border border-tiss-charcoal/15 px-8 py-12 md:px-12 md:py-16">
-                  {result.status === "sent" ? (
-                    <>
-                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                        REQUEST RECEIVED
-                        {result.bookingId ? ` · REF ${result.bookingId}` : ""}
-                      </p>
-                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
-                        Thank you, {firstName}.
-                      </h2>
-                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
-                        Your request for {selectedVilla.name} is with our
-                        team. We&rsquo;ll confirm and send payment details to{" "}
-                        <span className="text-tiss-charcoal">{email}</span>.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                        TEST MODE
-                      </p>
-                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
-                        Booking not sent.
-                      </h2>
-                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
-                        Availability and price were checked live, but this
-                        website can&rsquo;t create bookings yet, so nothing
-                        was sent to Beds24. To book now, please contact us
-                        on WhatsApp.
-                      </p>
-                    </>
-                  )}
-                </div>
-              )}
             </Reveal>
 
             {/* SUMMARY */}
