@@ -1,5 +1,5 @@
 import { Beds24Error, createBookingRequest, getOffers } from "@/lib/beds24";
-import { villas } from "@/lib/data";
+import { beds24Rooms } from "@/lib/data";
 import { parseStay } from "@/lib/stay";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return Response.json({ error: stay.error }, { status: 400 });
   }
 
-  const villa = villas.find((v) => v.roomId === Number(body.roomId));
+  const villa = beds24Rooms.find((v) => v.roomId === Number(body.roomId));
   if (!villa) {
     return Response.json({ error: "Unknown villa." }, { status: 400 });
   }

@@ -46,39 +46,55 @@ export const brandEssences = [
   { title: "Care without fuss", desc: "Warm, unhurried, never performed." },
 ];
 
-// Beds24 property id for Tiss Valley; the /reserve page hands off to its
-// booking page.
-export const BEDS24_PROPERTY_ID = 355365;
-
-// Villa types, mirrored from Beds24 property 355365 (Tiss Valley).
-// `roomId` is the Beds24 room type id; `units` and `maxGuests` copy the
-// room's qty and maxPeople there — update both places together.
-// Beds24 names: 732360 "King Room with Pool View", 732361 "King Room with
-// Mountain View", 732362 "King Room with Garden View".
 export const villas = [
   {
-    roomId: 732360,
+    name: "Upper Suite",
+    caption: "Steps into the terracing, first light at the door.",
+    src: "/assets/villa/upper-suite.webp",
+    span: "",
+  },
+  {
+    name: "Lower Suite",
+    caption: "Ground level, surrounded by planting on every side.",
+    src: "/assets/villa/lower-suite.webp",
+    span: "md:row-span-2",
+  },
+];
+
+// --- BEDS24 (booking on /reserve) ---
+
+// Beds24 property id for Tiss Valley.
+export const BEDS24_PROPERTY_ID = 355365;
+
+// Bookable room types, mirrored from Beds24 property 355365. These are what
+// /reserve checks and books — separate from `villas` above, which drives the
+// display pages. `units` and `maxGuests` copy Beds24's qty and maxPeople;
+// update both places together. Photos are placeholders until each room type
+// has its own shot.
+export const beds24Rooms = [
+  {
+    roomId: 732360, // Beds24: "King Room with Pool View"
     name: "Pool View Villa",
     caption: "Looking out over its own plunge pool, set into the terracing.",
-    view: "Pool View",
+    src: "/assets/villa/upper-suite.webp",
     units: 3,
     // Beds24 currently allows 1 guest for this room — likely a setting to
     // raise to 2 there.
     maxGuests: 1,
   },
   {
-    roomId: 732361,
+    roomId: 732361, // Beds24: "King Room with Mountain View"
     name: "Mountain View Villa",
     caption: "Facing the highland ridgeline above Sebatu, first light at the door.",
-    view: "Mountain View",
+    src: "/assets/villa/lower-suite.webp",
     units: 2,
     maxGuests: 2,
   },
   {
-    roomId: 732362,
+    roomId: 732362, // Beds24: "King Room with Garden View"
     name: "Garden View Villa",
     caption: "Ground level, surrounded by planting on every side.",
-    view: "Garden View",
+    src: "/assets/villa/garden-villa.webp",
     units: 1,
     maxGuests: 2,
   },
@@ -87,15 +103,15 @@ export const villas = [
 // Fitur list untuk section THE VILLAS
 export const villaFeatures = [
   {
-    icon: "/icons/oat/TISS_ICON_OAT_POOL.png",
+    icon: "/icons/green/TISS_ICON_GREEN_POOL.png",
     text: "Private plunge pool in every villa",
   },
   {
-    icon: "/icons/oat/TISS_ICON_OAT_MOUNTAIN VIEW.png",
+    icon: "/icons/green/TISS_ICON_GREEN_MOUNTAIN VIEW.png",
     text: "Uninterrupted valley view",
   },
   {
-    icon: "/icons/oat/TISS_ICON_OAT_BEDROOM.png",
+    icon: "/icons/green/TISS_ICON_GREEN_BEDROOM.png",
     text: "One bedroom, individually set",
   },
 ];
@@ -104,16 +120,19 @@ export const wellnessFeatures = [
   {
     icon: "/icons/green/TISS_ICON_GREEN_WELLNESS.png",
     title: "In-villa spa treatments",
+    src: "/assets/spaa.webp",
     desc: "Balinese massage and body treatments brought to your terrace, fresh around you.",
   },
   {
     icon: "/icons/green/TISS_ICON_GREEN_SUN DECK.png",
     title: "Morning yoga on the deck",
+    src: "/assets/morning-yoga.webp",
     desc: "Private or small-group sessions facing the terraces, at first light.",
   },
   {
     icon: "/icons/green/TISS_ICON_GREEN_DINING AREA.png",
     title: "Plant-based dining at Rassa",
+    src: "/assets/rassa.webp",
     desc: "Our front-of-property restaurant, built around what is grown, seasonal ingredients.",
   },
 ];

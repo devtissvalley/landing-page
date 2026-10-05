@@ -1,11 +1,27 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema, pageMetadata, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Rassa — TISS Valley",
-  description:
-    "Rassa, the plant-based restaurant at the front of TISS Valley in Sebatu, Bali. Opening soon.",
-};
+const title = "Rassa — Plant-Based Restaurant at TISS Valley, Sebatu";
+const description =
+  "Rassa is the plant-based restaurant at TISS Valley in Sebatu, Bali. Open to villa guests and visitors, built around what the valley grows. Opening soon.";
+
+export const metadata: Metadata = pageMetadata({
+  path: "/rassa",
+  title,
+  description,
+});
 
 export default function RassaLayout({ children }: LayoutProps<"/rassa">) {
-  return children;
+  return (
+    <>
+      <JsonLd
+        nodes={[
+          webPageSchema({ path: "/rassa", name: title, description }),
+          breadcrumbSchema([{ name: "Rassa", path: "/rassa" }]),
+        ]}
+      />
+      {children}
+    </>
+  );
 }

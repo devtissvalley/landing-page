@@ -8,19 +8,20 @@
   --color-tiss-sand: #d8cdb6;
   --color-tiss-charcoal: #2b2a27;
   --color-tiss-clay: #b5765a;
-}
 
-body {
-  font-family: var(--font-hanken);
-}
-
-@theme {
+  /* Registers the font-hanken / font-spectral utilities. next/font sets the
+     real values on <html> (app/layout.tsx) and, being unlayered, wins. */
   --font-hanken: var(--font-hanken), sans-serif;
   --font-spectral: var(--font-spectral), serif;
 }
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-hanken);
+  }
 }
 
 @keyframes hero-in {
@@ -38,12 +39,14 @@ html {
   animation: hero-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Zoom only. Mirror an image per page with Tailwind's -scale-x-100 (the
+   `scale` property composes with this `transform` instead of fighting it). */
 @keyframes kenburns {
   from {
-    transform: scale(1) scaleX(-1);
+    transform: scale(1);
   }
   to {
-    transform: scale(1.08) scaleX(-1);
+    transform: scale(1.08);
   }
 }
 .hero-image {
@@ -116,7 +119,91 @@ html {
   animation: sidebar-link-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Page transitions — a paneled curtain (components/PageCurtain.tsx).
+   Cover: while the view transition runs, the old page dims a little, the new
+   page stays hidden, and the panels drop in one after another. They animate
+   in the DOM; the transition shows the curtain live above the old page.
+   Reveal: once the last panel lands, PageCurtain ends the transition and adds
+   .is-revealing; the panels carry on down and off the bottom in order. */
+:root {
+  --curtain-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Leaves briskly, then settles slowly as the new page appears. */
+  --curtain-reveal-ease: cubic-bezier(0.45, 0, 0.15, 1);
+  --curtain-panel: 500ms;
+  --curtain-stagger: 55ms;
+  /* Last panel (index 4) lands at panel + 4 × stagger. */
+  --curtain-cover-total: calc(var(--curtain-panel) + 4 * var(--curtain-stagger));
+}
+::view-transition-old(root),
+::view-transition-new(root),
+::view-transition-new(page-curtain) {
+  animation: none;
+}
+::view-transition-old(.page-out) {
+  animation: var(--curtain-cover-total) var(--curtain-ease) both page-dim;
+}
+::view-transition-new(.page-in) {
+  animation: var(--curtain-cover-total) both page-hidden;
+}
+::view-transition-group(page-curtain) {
+  z-index: 100;
+}
+.page-curtain {
+  view-transition-name: page-curtain;
+}
+.page-curtain-panel {
+  /* Overlap by a pixel so no hairline shows between neighbours. */
+  margin-right: -1px;
+  animation: var(--curtain-panel) var(--curtain-ease)
+    calc(var(--i) * var(--curtain-stagger)) both curtain-panel-in;
+}
+.is-revealing .page-curtain-panel {
+  animation: var(--curtain-panel) var(--curtain-reveal-ease)
+    calc(var(--i) * var(--curtain-stagger)) both curtain-panel-out;
+}
+@keyframes page-dim {
+  to {
+    filter: brightness(0.7);
+  }
+}
+@keyframes page-hidden {
+  from,
+  to {
+    opacity: 0;
+  }
+}
+@keyframes curtain-panel-in {
+  from {
+    translate: 0 -100%;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+@keyframes curtain-panel-out {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 100%;
+  }
+}
+
+/* Let clicks reach the live page while a transition is running. */
+::view-transition {
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  .page-curtain {
+    display: none;
+  }
   html {
     scroll-behavior: auto;
   }

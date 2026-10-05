@@ -1,23 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import Reveal from "@/components/Reveal";
-import { villas, villaFeatures } from "@/lib/data";
+import { beds24Rooms, villaFeatures } from "@/lib/data";
 import type { RoomOffer } from "@/lib/beds24";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-// Real assets only live under /public/assets — cycle through them per villa
-// until dedicated villa-*.webp shots are dropped in. the-valley.webp is left
-// out on purpose (see app/villas/page.tsx for why).
-const placeholderImages = [
-  "/assets/hero.webp",
-  "/assets/wellnes-yoga.webp",
-  "/assets/rassa.webp",
-];
-
-const MAX_GUESTS = Math.max(...villas.map((v) => v.maxGuests));
+const MAX_GUESTS = Math.max(...beds24Rooms.map((v) => v.maxGuests));
 
 const idr = new Intl.NumberFormat("id-ID", {
   style: "currency",
@@ -37,11 +29,11 @@ type Step = "search" | "details" | "done";
 type Result = { status: "sent" | "dry-run"; bookingId?: number | null };
 
 const inputClass =
-  "w-full bg-transparent border-b border-[#2B2A27]/25 text-[#2B2A27] placeholder:text-[#2B2A27]/35 py-3 text-sm md:text-base outline-none focus:border-[#2B2A27]";
+  "w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal";
 const labelClass =
-  "block text-[10px] tracking-widest uppercase text-[#2B2A27]/60 mb-2";
+  "block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2";
 const primaryButton =
-  "self-start bg-[#B5765A] text-[#EFE7D7] px-10 py-4 tracking-widest text-xs uppercase cursor-pointer transition-colors duration-300 hover:bg-[#a3684f] disabled:opacity-50 disabled:cursor-not-allowed";
+  "self-start bg-tiss-clay text-tiss-oat px-10 py-4 tracking-widest text-xs uppercase cursor-pointer transition duration-300 hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed";
 
 export default function ReservePage() {
   const today = new Date().toISOString().split("T")[0];
@@ -63,7 +55,7 @@ export default function ReservePage() {
   const [notes, setNotes] = useState("");
   const [result, setResult] = useState<Result | null>(null);
 
-  const selectedVilla = villas[villaIndex];
+  const selectedVilla = beds24Rooms[villaIndex];
   const nights = nightsBetween(checkIn, checkOut);
   const offerFor = (roomId: number) =>
     offers?.find((o) => o.roomId === roomId);
@@ -78,7 +70,7 @@ export default function ReservePage() {
       "villa",
     );
     if (!villaParam) return;
-    const idx = villas.findIndex(
+    const idx = beds24Rooms.findIndex(
       (v) => v.name.toLowerCase() === villaParam.toLowerCase(),
     );
     if (idx >= 0) setVillaIndex(idx);
@@ -107,9 +99,9 @@ export default function ReservePage() {
       setOffers(found);
       // Keep the chosen villa if it's bookable, else move to the first one that is.
       const isOpen = (i: number) =>
-        found.some((o) => o.roomId === villas[i].roomId && o.available);
+        found.some((o) => o.roomId === beds24Rooms[i].roomId && o.available);
       if (!isOpen(villaIndex)) {
-        const first = villas.findIndex((_, i) => isOpen(i));
+        const first = beds24Rooms.findIndex((_, i) => isOpen(i));
         if (first >= 0) setVillaIndex(first);
       }
     } catch (err) {
@@ -153,66 +145,46 @@ export default function ReservePage() {
 
   return (
     <>
-      {/* Top bar — slim, detail-page chrome (back to the valley, not the full nav) */}
-      <div className="sticky top-0 z-50 bg-[#2B2A27]/90 backdrop-blur-md">
-        <nav className="flex justify-between items-center gap-4 px-6 md:px-12 lg:px-20 py-4 text-[#EFE7D7]">
-          <Link
-            href="/"
-            className="link-underline text-[10px] sm:text-xs tracking-widest uppercase"
-          >
-            &larr; TISS Valley
-          </Link>
-          <span className="font-spectral text-lg md:text-xl">Reserve</span>
-          <a
-            href="tel:+6281139808151"
-            className="hidden sm:inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-widest uppercase link-underline"
-          >
-            <IconPhone className="size-3.5" />
-            +62 811 3980 8151
-          </a>
-        </nav>
-      </div>
+      <Navbar />
 
       <main>
         {/* HERO — compact, this is a functional page rather than a full-screen moment */}
-        <section className="relative px-6 md:px-12 lg:px-20 py-24 md:py-32 flex items-center justify-center text-center">
+        <section className="relative px-6 md:px-12 lg:px-20 pt-40 md:pt-48 pb-24 md:pb-32 flex items-center justify-center text-center">
           <div className="absolute inset-0 -z-10 overflow-hidden">
             <Image
               width={1920}
               height={1080}
-              src="/assets/hero.webp"
+              src="/assets/tiss-hero.webp"
               alt="A pool villa set into the highland rice terraces"
-              className="w-full h-full object-cover hero-image"
+              className="w-full h-full object-cover hero-image -scale-x-100"
+              sizes="100vw"
               loading="eager"
+              fetchPriority="high"
             />
-            <div className="absolute inset-0 bg-[#2B2A27]/85">
+            <div className="absolute inset-0 bg-tiss-charcoal/85">
               <span className="sr-only">dark backdrop</span>
             </div>
           </div>
 
           <div className="flex flex-col items-center">
             <div
-              className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-[#EFE7D7]/40 mb-8"
+              className="hero-in inline-flex items-center border py-2 px-4 rounded-full gap-3 border-tiss-oat/40 mb-8"
               style={{ animationDelay: "0.1s" }}
             >
-              <div className="relative">
-                <span className="bg-[#B5765A] size-2 rounded-full block absolute inset-0"></span>
-                <span className="bg-[#B5765A] size-2 rounded-full block animate-ping"></span>
-              </div>
-              <span className="text-[#D8CDB6] text-[10px] sm:text-xs tracking-widest uppercase">
+              <span className="text-tiss-sand text-[10px] sm:text-xs tracking-widest uppercase">
                 SIX VILLAS &middot; ONE QUIET VALLEY
               </span>
             </div>
 
             <h1
-              className="hero-in font-spectral text-[#EFE7D7] text-5xl sm:text-6xl md:text-7xl mb-6"
+              className="hero-in font-spectral text-tiss-oat text-5xl sm:text-6xl md:text-7xl mb-6"
               style={{ animationDelay: "0.3s" }}
             >
               Reserve Your Stay
             </h1>
 
             <p
-              className="hero-in text-[#D8CDB6] font-light max-w-lg text-sm md:text-base leading-relaxed mb-8"
+              className="hero-in text-tiss-sand font-light max-w-lg text-sm md:text-base leading-relaxed mb-8"
               style={{ animationDelay: "0.5s" }}
             >
               Choose your dates to see live availability and pricing, then
@@ -221,7 +193,7 @@ export default function ReservePage() {
 
             <a
               href="#book"
-              className="hero-in bg-[#B5765A] text-[#EFE7D7] px-8 py-4 tracking-widest text-xs uppercase transition-colors duration-300 hover:bg-[#a3684f]"
+              className="hero-in bg-tiss-clay text-tiss-oat px-8 py-4 tracking-widest text-xs uppercase transition duration-300 hover:brightness-90"
               style={{ animationDelay: "0.7s" }}
             >
               Start booking
@@ -232,7 +204,7 @@ export default function ReservePage() {
         {/* BOOKING FLOW + SUMMARY */}
         <section
           id="book"
-          className="bg-[#EFE7D7] px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24"
+          className="bg-tiss-oat px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
             <Reveal className="lg:col-span-3">
@@ -243,10 +215,10 @@ export default function ReservePage() {
                     className="flex flex-col gap-10"
                   >
                     <div>
-                      <p className="text-[#2B2A27]/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                      <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                         STEP 1 OF 2 &middot; YOUR STAY
                       </p>
-                      <h2 className="font-spectral text-3xl md:text-4xl text-[#2B2A27]">
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
                         Book your stay.
                       </h2>
                     </div>
@@ -321,19 +293,19 @@ export default function ReservePage() {
                   </form>
 
                   {error && (
-                    <p className="text-[#B5765A] text-sm" role="alert">
+                    <p className="text-tiss-clay text-sm" role="alert">
                       {error}
                     </p>
                   )}
 
                   {offers && (
                     <div className="flex flex-col gap-4">
-                      <p className="text-[#2B2A27]/60 text-[10px] tracking-widest uppercase">
+                      <p className="text-tiss-charcoal/60 text-[10px] tracking-widest uppercase">
                         {nights} {nights === 1 ? "night" : "nights"} &middot;{" "}
                         {guests} {guests === 1 ? "guest" : "guests"}
                       </p>
 
-                      {villas.map((villa, i) => {
+                      {beds24Rooms.map((villa, i) => {
                         const offer = offerFor(villa.roomId);
                         const available = Boolean(offer?.available);
                         const tooSmall = guests > villa.maxGuests;
@@ -346,15 +318,15 @@ export default function ReservePage() {
                             onClick={() => setVillaIndex(i)}
                             className={`text-left border px-6 py-5 flex justify-between items-center gap-4 transition-colors duration-300 ${
                               selected && available
-                                ? "border-[#2B2A27] bg-[#D8CDB6]/40"
-                                : "border-[#2B2A27]/15 hover:border-[#2B2A27]/40"
-                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#2B2A27]/15`}
+                                ? "border-tiss-charcoal bg-tiss-sand/40"
+                                : "border-tiss-charcoal/15 hover:border-tiss-charcoal/40"
+                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-tiss-charcoal/15`}
                           >
                             <div>
-                              <p className="font-spectral text-xl text-[#2B2A27]">
+                              <p className="font-spectral text-xl text-tiss-charcoal">
                                 {villa.name}
                               </p>
-                              <p className="text-xs text-[#2B2A27]/60 mt-1">
+                              <p className="text-xs text-tiss-charcoal/60 mt-1">
                                 {available
                                   ? `${offer!.unitsAvailable} available`
                                   : tooSmall
@@ -364,10 +336,10 @@ export default function ReservePage() {
                             </div>
                             {available && offer?.price != null && (
                               <div className="text-right shrink-0">
-                                <p className="text-[#2B2A27]">
+                                <p className="text-tiss-charcoal">
                                   {idr.format(offer.price)}
                                 </p>
-                                <p className="text-xs text-[#2B2A27]/60">
+                                <p className="text-xs text-tiss-charcoal/60">
                                   {idr.format(offer.price / nights)} / night
                                 </p>
                               </div>
@@ -395,10 +367,10 @@ export default function ReservePage() {
               {step === "details" && (
                 <form onSubmit={requestBooking} className="flex flex-col gap-10">
                   <div>
-                    <p className="text-[#2B2A27]/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                    <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                       STEP 2 OF 2 &middot; YOUR DETAILS
                     </p>
-                    <h2 className="font-spectral text-3xl md:text-4xl text-[#2B2A27]">
+                    <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
                       Who&rsquo;s staying?
                     </h2>
                   </div>
@@ -479,7 +451,7 @@ export default function ReservePage() {
                   </div>
 
                   {error && (
-                    <p className="text-[#B5765A] text-sm" role="alert">
+                    <p className="text-tiss-clay text-sm" role="alert">
                       {error}
                     </p>
                   )}
@@ -498,12 +470,12 @@ export default function ReservePage() {
                         setError("");
                         setStep("search");
                       }}
-                      className="text-[#2B2A27] text-xs tracking-widest uppercase link-underline cursor-pointer"
+                      className="text-tiss-charcoal text-xs tracking-widest uppercase link-underline cursor-pointer"
                     >
                       Back
                     </button>
                   </div>
-                  <p className="-mt-6 text-[#2B2A27]/50 text-xs font-light max-w-md">
+                  <p className="-mt-6 text-tiss-charcoal/50 text-xs font-light max-w-md">
                     No payment now. Our team confirms your booking and sends
                     payment details by email or WhatsApp.
                   </p>
@@ -511,31 +483,31 @@ export default function ReservePage() {
               )}
 
               {step === "done" && result && (
-                <div className="border border-[#2B2A27]/15 px-8 py-12 md:px-12 md:py-16">
+                <div className="border border-tiss-charcoal/15 px-8 py-12 md:px-12 md:py-16">
                   {result.status === "sent" ? (
                     <>
-                      <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                         REQUEST RECEIVED
                         {result.bookingId ? ` · REF ${result.bookingId}` : ""}
                       </p>
-                      <h2 className="font-spectral text-3xl md:text-4xl text-[#2B2A27] mb-6">
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
                         Thank you, {firstName}.
                       </h2>
-                      <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-md">
+                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
                         Your request for {selectedVilla.name} is with our
                         team. We&rsquo;ll confirm and send payment details to{" "}
-                        <span className="text-[#2B2A27]">{email}</span>.
+                        <span className="text-tiss-charcoal">{email}</span>.
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-[#B5765A] text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                         TEST MODE
                       </p>
-                      <h2 className="font-spectral text-3xl md:text-4xl text-[#2B2A27] mb-6">
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
                         Booking not sent.
                       </h2>
-                      <p className="text-[#2B2A27]/70 font-light text-sm md:text-base leading-relaxed max-w-md">
+                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
                         Availability and price were checked live, but this
                         website can&rsquo;t create bookings yet, so nothing
                         was sent to Beds24. To book now, please contact us
@@ -549,75 +521,74 @@ export default function ReservePage() {
 
             {/* SUMMARY */}
             <Reveal delay={150} className="lg:col-span-2">
-              <div className="border border-[#2B2A27]/15">
+              <div className="border border-tiss-charcoal/15">
                 <div className="relative w-full h-64 overflow-hidden">
                   <Image
                     fill
-                    src={placeholderImages[villaIndex % placeholderImages.length]}
-                    alt={selectedVilla.name}
+                    src={selectedVilla.src}
+                    alt={`${selectedVilla.name} at TISS Valley, Sebatu`}
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                     className="object-cover"
                   />
                 </div>
                 <div className="p-8">
-                  <p className="text-[#B5765A] text-[10px] tracking-widest mb-3 uppercase">
+                  <p className="text-tiss-clay text-[10px] tracking-widest mb-3 uppercase">
                     Villa Type 0{villaIndex + 1}
                   </p>
-                  <h3 className="text-[#2B2A27] font-spectral text-2xl mb-3">
+                  <h3 className="text-tiss-charcoal font-spectral text-2xl mb-3">
                     {selectedVilla.name}
                   </h3>
-                  <p className="text-[#2B2A27]/70 text-sm font-light leading-relaxed mb-6">
+                  <p className="text-tiss-charcoal/70 text-sm font-light leading-relaxed mb-6">
                     {selectedVilla.caption}
                   </p>
 
-                  <div className="flex flex-col gap-3 border-t border-[#2B2A27]/10 pt-6 mb-6">
+                  <div className="flex flex-col gap-3 border-t border-tiss-charcoal/10 pt-6 mb-6">
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Check-in</span>
-                      <span className="text-[#2B2A27]">
+                      <span className="text-tiss-charcoal/60">Check-in</span>
+                      <span className="text-tiss-charcoal">
                         {checkIn || "—"}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Check-out</span>
-                      <span className="text-[#2B2A27]">
+                      <span className="text-tiss-charcoal/60">Check-out</span>
+                      <span className="text-tiss-charcoal">
                         {checkOut || "—"}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Nights</span>
-                      <span className="text-[#2B2A27]">
+                      <span className="text-tiss-charcoal/60">Nights</span>
+                      <span className="text-tiss-charcoal">
                         {nights > 0 ? nights : "—"}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#2B2A27]/60">Guests</span>
-                      <span className="text-[#2B2A27]">{guests}</span>
+                      <span className="text-tiss-charcoal/60">Guests</span>
+                      <span className="text-tiss-charcoal">{guests}</span>
                     </div>
                     {selectedOffer?.available && selectedOffer.price != null && (
-                      <div className="flex justify-between text-sm border-t border-[#2B2A27]/10 pt-3 mt-1">
-                        <span className="text-[#2B2A27]/60">Total</span>
-                        <span className="text-[#2B2A27] font-medium">
+                      <div className="flex justify-between text-sm border-t border-tiss-charcoal/10 pt-3 mt-1">
+                        <span className="text-tiss-charcoal/60">Total</span>
+                        <span className="text-tiss-charcoal font-medium">
                           {idr.format(selectedOffer.price)}
                         </span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-3 border-t border-[#2B2A27]/10 pt-6">
+                  <div className="flex flex-col gap-3 border-t border-tiss-charcoal/10 pt-6">
                     {villaFeatures.map((feature) => (
                       <div
                         key={feature.text}
                         className="flex items-center gap-3"
                       >
                         <Image
-                          src={feature.icon
-                            .replace("/icons/oat/", "/icons/green/")
-                            .replace("TISS_ICON_OAT_", "TISS_ICON_GREEN_")}
+                          src={feature.icon}
                           alt=""
                           width={16}
                           height={16}
                           className="size-4 object-contain shrink-0"
                         />
-                        <span className="text-[#2B2A27]/70 text-xs font-light">
+                        <span className="text-tiss-charcoal/70 text-xs font-light">
                           {feature.text}
                         </span>
                       </div>
@@ -627,10 +598,10 @@ export default function ReservePage() {
               </div>
 
               <div className="mt-8 px-2">
-                <p className="text-[#2B2A27]/60 text-[10px] tracking-widest mb-4 uppercase">
+                <p className="text-tiss-charcoal/60 text-[10px] tracking-widest mb-4 uppercase">
                   Prefer to talk it through?
                 </p>
-                <div className="flex items-center gap-5 text-[#2B2A27]/70">
+                <div className="flex items-center gap-5 text-tiss-charcoal/70">
                   <a
                     href="tel:+6281139808151"
                     className="flex items-center gap-2 text-sm link-underline"
@@ -661,16 +632,7 @@ export default function ReservePage() {
         </section>
       </main>
 
-      {/* Slim footer for the detail page */}
-      <footer className="bg-[#2B2A27] px-6 md:px-12 lg:px-20 py-8 text-center">
-        <p className="text-[#D8CDB6]/40 text-xs">
-          Reservations are handled directly by{" "}
-          <Link href="/" className="link-underline text-[#D8CDB6]/70">
-            TISS Valley
-          </Link>
-          , Sebatu &middot; &copy; 2026 TISS Valley
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 }
