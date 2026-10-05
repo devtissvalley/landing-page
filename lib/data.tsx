@@ -46,36 +46,19 @@ export const brandEssences = [
   { title: "Care without fuss", desc: "Warm, unhurried, never performed." },
 ];
 
-export const villas = [
-  {
-    name: "Upper Suite",
-    caption: "Steps into the terracing, first light at the door.",
-    src: "/assets/villa/upper-suite.webp",
-    span: "",
-  },
-  {
-    name: "Lower Suite",
-    caption: "Ground level, surrounded by planting on every side.",
-    src: "/assets/villa/lower-suite.webp",
-    span: "md:row-span-2",
-  },
-];
-
-// --- BEDS24 (booking on /reserve) ---
-
-// Beds24 property id for Tiss Valley.
+// Beds24 property id for Tiss Valley (live availability on /reserve).
 export const BEDS24_PROPERTY_ID = 355365;
 
-// Bookable room types, mirrored from Beds24 property 355365. These are what
-// /reserve checks and books — separate from `villas` above, which drives the
-// display pages. `units` and `maxGuests` copy Beds24's qty and maxPeople;
-// update both places together. Photos are placeholders until each room type
-// has its own shot.
-export const beds24Rooms = [
+// Villa types — the same list on the home page, /villas and /reserve.
+// Mirrored from Beds24 property 355365: `roomId` is the Beds24 room type id;
+// `units` and `maxGuests` copy its qty and maxPeople there, so update both
+// places together. Photos are placeholders until each type has its own shot.
+export const villas = [
   {
     roomId: 732360, // Beds24: "King Room with Pool View"
     name: "Pool View Villa",
     caption: "Looking out over its own plunge pool, set into the terracing.",
+    view: "Pool View",
     src: "/assets/villa/upper-suite.webp",
     units: 3,
     // Beds24 currently allows 1 guest for this room — likely a setting to
@@ -86,6 +69,7 @@ export const beds24Rooms = [
     roomId: 732361, // Beds24: "King Room with Mountain View"
     name: "Mountain View Villa",
     caption: "Facing the highland ridgeline above Sebatu, first light at the door.",
+    view: "Mountain View",
     src: "/assets/villa/lower-suite.webp",
     units: 2,
     maxGuests: 2,
@@ -94,6 +78,7 @@ export const beds24Rooms = [
     roomId: 732362, // Beds24: "King Room with Garden View"
     name: "Garden View Villa",
     caption: "Ground level, surrounded by planting on every side.",
+    view: "Garden View",
     src: "/assets/villa/garden-villa.webp",
     units: 1,
     maxGuests: 2,

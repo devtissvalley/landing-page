@@ -332,7 +332,7 @@ export default function Home() {
                   <Reveal>
                     <div className="flex flex-col h-full justify-center">
                       <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 md:mb-6 uppercase">
-                        Villa 0{i + 1}
+                        {villa.units} {villa.units === 1 ? "Villa" : "Villas"}
                       </p>
 
                       <h3 className="text-tiss-charcoal font-spectral text-4xl md:text-5xl lg:text-[4rem] leading-none mb-6 md:mb-8">

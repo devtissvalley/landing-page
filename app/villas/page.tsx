@@ -5,14 +5,18 @@ import { villas, villaFeatures } from "@/lib/data";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const villaSpecs = [
-  "1 Villa",
-  "One Bedroom",
-  "Private Plunge Pool",
-  "Valley View",
-  "Suitable for 2 Adults",
-  "Free Wi-Fi",
-];
+// Spec lines per villa type. Units, view and guest count come from the
+// Beds24-mirrored `villas` data; the rest is shared by every type.
+function villaSpecs(villa: (typeof villas)[number]) {
+  return [
+    `${villa.units} ${villa.units === 1 ? "Villa" : "Villas"}`,
+    "One Bedroom · King Bed",
+    "Private Plunge Pool",
+    villa.view,
+    `Up to ${villa.maxGuests} ${villa.maxGuests === 1 ? "Guest" : "Guests"}`,
+    "Free Wi-Fi",
+  ];
+}
 
 export default function VillasPage() {
   return (
@@ -130,9 +134,9 @@ export default function VillasPage() {
               </h2>
               <span className="block w-16 h-px bg-tiss-charcoal/25 mb-8" />
               <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed mb-6">
-                Six villas, not sixty. Room to disappear. No two share a wall or
-                a view — each is set on its own fold of the terracing, apart
-                from the rest.
+                Six villas, not sixty. Room to disappear. No two share a wall —
+                each is set on its own fold of the terracing, apart from the
+                rest.
               </p>
               <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed">
                 Premium, not luxury — where the performance would be, TISS stays
@@ -162,14 +166,14 @@ export default function VillasPage() {
                 {/* Villa Details */}
                 <div className="w-full flex flex-col justify-center p-8 md:p-10 lg:p-12">
                   <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                    Villa 0{i + 1}
+                    Villa Type 0{i + 1}
                   </p>
                   <h3 className="text-tiss-charcoal font-spectral text-3xl md:text-4xl leading-none mb-6">
                     {villa.name}
                   </h3>
 
                   <ul className="flex flex-col gap-2 mb-6 text-tiss-charcoal/70 text-sm font-light">
-                    {villaSpecs.map((spec) => (
+                    {villaSpecs(villa).map((spec) => (
                       <li key={spec}>{spec}</li>
                     ))}
                   </ul>

@@ -3,14 +3,14 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Reveal from "@/components/Reveal";
-import { beds24Rooms, villaFeatures } from "@/lib/data";
+import { villas, villaFeatures } from "@/lib/data";
 import type { RoomOffer } from "@/lib/beds24";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { BUSINESS } from "@/lib/seo";
 
-const MAX_GUESTS = Math.max(...beds24Rooms.map((v) => v.maxGuests));
+const MAX_GUESTS = Math.max(...villas.map((v) => v.maxGuests));
 
 const idr = new Intl.NumberFormat("id-ID", {
   style: "currency",
@@ -46,7 +46,7 @@ export default function ReservePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const selectedVilla = beds24Rooms[villaIndex];
+  const selectedVilla = villas[villaIndex];
   const nights = nightsBetween(checkIn, checkOut);
   const offerFor = (roomId: number) =>
     offers?.find((o) => o.roomId === roomId);
@@ -78,7 +78,7 @@ export default function ReservePage() {
       "villa",
     );
     if (!villaParam) return;
-    const idx = beds24Rooms.findIndex(
+    const idx = villas.findIndex(
       (v) => v.name.toLowerCase() === villaParam.toLowerCase(),
     );
     if (idx >= 0) setVillaIndex(idx);
@@ -107,9 +107,9 @@ export default function ReservePage() {
       setOffers(found);
       // Keep the chosen villa if it's bookable, else move to the first one that is.
       const isOpen = (i: number) =>
-        found.some((o) => o.roomId === beds24Rooms[i].roomId && o.available);
+        found.some((o) => o.roomId === villas[i].roomId && o.available);
       if (!isOpen(villaIndex)) {
-        const first = beds24Rooms.findIndex((_, i) => isOpen(i));
+        const first = villas.findIndex((_, i) => isOpen(i));
         if (first >= 0) setVillaIndex(first);
       }
     } catch (err) {
@@ -289,7 +289,7 @@ export default function ReservePage() {
                         {guests} {guests === 1 ? "guest" : "guests"}
                       </p>
 
-                      {beds24Rooms.map((villa, i) => {
+                      {villas.map((villa, i) => {
                         const offer = offerFor(villa.roomId);
                         const available = Boolean(offer?.available);
                         const tooSmall = guests > villa.maxGuests;
