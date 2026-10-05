@@ -48,7 +48,9 @@ export async function POST(request: Request) {
 
   try {
     // Re-check right before booking: the guest may have waited on the form.
-    const offers = await getOffers(stay.checkin, stay.checkout, stay.guests);
+    const offers = await getOffers(stay.checkin, stay.checkout, stay.guests, {
+      fresh: true,
+    });
     const offer = offers.find((o) => o.roomId === villa.roomId);
     if (!offer?.available) {
       return Response.json(

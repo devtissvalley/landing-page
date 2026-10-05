@@ -31,17 +31,35 @@ export type BookingRequest = {
 
 export class Beds24Error extends Error {}
 
-async function call(path: string, token: string, init?: RequestInit) {
-  const res = await fetch(`${API}${path}`, {
-    ...init,
-    headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-      token,
-      ...init?.headers,
-    },
-    cache: "no-store",
-  });
+const TIMEOUT_MS = 15_000;
+
+async function call(
+  path: string,
+  token: string,
+  init?: RequestInit,
+  { retry = true } = {},
+) {
+  let res: Response;
+  try {
+    res = await fetch(`${API}${path}`, {
+      ...init,
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        token,
+        ...init?.headers,
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (err) {
+    // Network failure or timeout — the route to beds24.com can be slow.
+    // Retry once; never retry a POST, it could create the booking twice.
+    if (retry && (init?.method ?? "GET") === "GET") {
+      return call(path, token, init, { retry: false });
+    }
+    throw new Beds24Error(`Beds24 ${path} unreachable: ${String(err)}`);
+  }
   const body = await res.json().catch(() => null);
   if (!res.ok || !body || body.success === false) {
     throw new Beds24Error(
@@ -51,8 +69,28 @@ async function call(path: string, token: string, init?: RequestInit) {
   return body;
 }
 
+// Short in-memory cache so repeated searches for the same stay don't each
+// wait on Beds24. Booking always passes `fresh` to skip it.
+const OFFERS_TTL_MS = 60_000;
+const offersCache = new Map<string, { at: number; offers: RoomOffer[] }>();
+
 /** Live availability and price for every room type, for one stay. */
 export async function getOffers(
+  checkin: string,
+  checkout: string,
+  guests: number,
+  { fresh = false } = {},
+): Promise<RoomOffer[]> {
+  const key = `${checkin}|${checkout}|${guests}`;
+  const hit = offersCache.get(key);
+  if (!fresh && hit && Date.now() - hit.at < OFFERS_TTL_MS) return hit.offers;
+
+  const offers = await fetchOffers(checkin, checkout, guests);
+  offersCache.set(key, { at: Date.now(), offers });
+  return offers;
+}
+
+async function fetchOffers(
   checkin: string,
   checkout: string,
   guests: number,

@@ -20,8 +20,8 @@ export async function GET(request: Request) {
     console.error(err);
     const message =
       err instanceof Beds24Error
-        ? "Availability is unavailable right now."
-        : "Something went wrong.";
+        ? "We couldn't reach our booking system. Please try again, or message us on WhatsApp."
+        : "Something went wrong. Please try again, or message us on WhatsApp.";
     return Response.json({ error: message }, { status: 502 });
   }
 }
