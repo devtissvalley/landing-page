@@ -1,23 +1,38 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import Reveal from "@/components/Reveal";
-import { villas, villaFeatures } from "@/lib/data";
+import { beds24Rooms, villaFeatures } from "@/lib/data";
+import type { RoomOffer } from "@/lib/beds24";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { BUSINESS } from "@/lib/seo";
+
+const MAX_GUESTS = Math.max(...beds24Rooms.map((v) => v.maxGuests));
+
+const idr = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
 
 function nightsBetween(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return 0;
-  const inDate = new Date(checkIn);
-  const outDate = new Date(checkOut);
   const diff = Math.round(
-    (outDate.getTime() - inDate.getTime()) / (1000 * 60 * 60 * 24),
+    (Date.parse(checkOut) - Date.parse(checkIn)) / (1000 * 60 * 60 * 24),
   );
   return diff > 0 ? diff : 0;
 }
+
+
+const inputClass =
+  "w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal";
+const labelClass =
+  "block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2";
+const primaryButton =
+  "self-start bg-tiss-clay text-tiss-oat px-10 py-4 tracking-widest text-xs uppercase cursor-pointer transition duration-300 hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed";
 
 export default function ReservePage() {
   const today = new Date().toISOString().split("T")[0];
@@ -26,31 +41,83 @@ export default function ReservePage() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [notes, setNotes] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
-  const selectedVilla = villas[villaIndex];
+  const [offers, setOffers] = useState<RoomOffer[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const selectedVilla = beds24Rooms[villaIndex];
   const nights = nightsBetween(checkIn, checkOut);
+  const offerFor = (roomId: number) =>
+    offers?.find((o) => o.roomId === roomId);
+  const selectedOffer = offerFor(selectedVilla.roomId);
+
+  // Booking is finished on WhatsApp for now: open a chat with the stay
+  // already written out.
+  const whatsappLink = `${BUSINESS.whatsapp}?text=${encodeURIComponent(
+    [
+      "Hi TISS Valley, I'd like to book:",
+      `Villa: ${selectedVilla.name}`,
+      `Check-in: ${checkIn}`,
+      `Check-out: ${checkOut} (${nights} ${nights === 1 ? "night" : "nights"})`,
+      `Guests: ${guests}`,
+      selectedOffer?.price != null
+        ? `Price shown: ${idr.format(selectedOffer.price)}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  )}`;
 
   // Pre-select the villa when arriving from a per-villa "Reserve"/"Check
-  // rates" link (e.g. /reserve?villa=Terrace%20Villa). Read on mount via
+  // rates" link (e.g. /reserve?villa=Pool%20View%20Villa). Read on mount via
   // window.location rather than useSearchParams so this page doesn't need
   // a Suspense boundary.
   useEffect(() => {
-    const villaParam = new URLSearchParams(window.location.search).get("villa");
+    const villaParam = new URLSearchParams(window.location.search).get(
+      "villa",
+    );
     if (!villaParam) return;
-    const idx = villas.findIndex(
+    const idx = beds24Rooms.findIndex(
       (v) => v.name.toLowerCase() === villaParam.toLowerCase(),
     );
     if (idx >= 0) setVillaIndex(idx);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Changing the stay invalidates any availability already shown.
+  const resetSearch = () => {
+    setOffers(null);
+    setError("");
+  };
+
+  const checkAvailability = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+    try {
+      const params = new URLSearchParams({
+        checkin: checkIn,
+        checkout: checkOut,
+        guests: String(guests),
+      });
+      const res = await fetch(`/api/availability?${params}`);
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Please try again.");
+      const found: RoomOffer[] = body.offers;
+      setOffers(found);
+      // Keep the chosen villa if it's bookable, else move to the first one that is.
+      const isOpen = (i: number) =>
+        found.some((o) => o.roomId === beds24Rooms[i].roomId && o.available);
+      if (!isOpen(villaIndex)) {
+        const first = beds24Rooms.findIndex((_, i) => isOpen(i));
+        if (first >= 0) setVillaIndex(first);
+      }
+    } catch (err) {
+      setOffers(null);
+      setError(err instanceof Error ? err.message : "Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,9 +164,8 @@ export default function ReservePage() {
               className="hero-in text-tiss-sand font-light max-w-lg text-sm md:text-base leading-relaxed mb-8"
               style={{ animationDelay: "0.5s" }}
             >
-              Tell us your dates and which villa calls to you — our team
-              confirms availability and pricing by email, usually within 24
-              hours.
+              Choose your dates to see live availability and pricing, then
+              send us your booking request.
             </p>
 
             <a
@@ -107,212 +173,187 @@ export default function ReservePage() {
               className="hero-in bg-tiss-clay text-tiss-oat px-8 py-4 tracking-widest text-xs uppercase transition duration-300 hover:brightness-90"
               style={{ animationDelay: "0.7s" }}
             >
-              Start your request
+              Start booking
             </a>
           </div>
         </section>
 
-        {/* BOOKING FORM + SUMMARY */}
+        {/* BOOKING FLOW + SUMMARY */}
         <section
           id="book"
           className="bg-tiss-oat px-6 md:px-12 lg:px-20 py-16 md:py-20 lg:py-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
-            {/* FORM */}
             <Reveal className="lg:col-span-3">
-              {submitted ? (
-                <div className="border border-tiss-charcoal/15 px-8 py-12 md:px-12 md:py-16">
-                  <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                    REQUEST SENT
-                  </p>
-                  <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
-                    Thank you, {name.split(" ")[0] || "there"}.
-                  </h2>
-                  <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
-                    We&rsquo;ve noted your request for {selectedVilla.name}
-                    {nights > 0
-                      ? ` — ${nights} night${nights > 1 ? "s" : ""}`
-                      : ""}
-                    . Our team will confirm availability and pricing at{" "}
-                    <span className="text-tiss-charcoal">{email}</span> within 24
-                    hours.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitted(false)}
-                    className="mt-10 inline-flex items-center text-tiss-charcoal text-xs tracking-widest uppercase relative group w-max pb-2"
+                <div className="flex flex-col gap-10">
+                  <form
+                    onSubmit={checkAvailability}
+                    className="flex flex-col gap-10"
                   >
-                    <span className="tracking-widest">EDIT MY REQUEST</span>
-                    <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal/20"></span>
-                    <span className="absolute left-0 bottom-0 w-full h-px bg-tiss-charcoal scale-x-0 origin-left transition-transform duration-700 ease-out group-hover:scale-x-100"></span>
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-                  <div>
-                    <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
-                      YOUR STAY
+                    <div>
+                      <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                        YOUR STAY
+                      </p>
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
+                        Book your stay.
+                      </h2>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="checkIn" className={labelClass}>
+                          Check-in
+                        </label>
+                        <input
+                          id="checkIn"
+                          type="date"
+                          required
+                          min={today}
+                          value={checkIn}
+                          onChange={(e) => {
+                            setCheckIn(e.target.value);
+                            resetSearch();
+                          }}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="checkOut" className={labelClass}>
+                          Check-out
+                        </label>
+                        <input
+                          id="checkOut"
+                          type="date"
+                          required
+                          min={checkIn || today}
+                          value={checkOut}
+                          onChange={(e) => {
+                            setCheckOut(e.target.value);
+                            resetSearch();
+                          }}
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="guests" className={labelClass}>
+                        Guests
+                      </label>
+                      <select
+                        id="guests"
+                        value={guests}
+                        onChange={(e) => {
+                          setGuests(Number(e.target.value));
+                          resetSearch();
+                        }}
+                        className={`${inputClass} appearance-none`}
+                      >
+                        {Array.from({ length: MAX_GUESTS }, (_, n) => n + 1).map(
+                          (n) => (
+                            <option key={n} value={n}>
+                              {n} {n === 1 ? "guest" : "guests"}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className={primaryButton}
+                    >
+                      {loading ? "Checking…" : "Check availability"}
+                    </button>
+                  </form>
+
+                  {error && (
+                    <p className="text-tiss-clay text-sm" role="alert">
+                      {error}{" "}
+                      <a
+                        href={BUSINESS.whatsapp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        Open WhatsApp
+                      </a>
                     </p>
-                    <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
-                      Request a reservation.
-                    </h2>
-                  </div>
+                  )}
 
-                  <div>
-                    <label
-                      htmlFor="villa"
-                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                    >
-                      Villa
-                    </label>
-                    <select
-                      id="villa"
-                      value={villaIndex}
-                      onChange={(e) => setVillaIndex(Number(e.target.value))}
-                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal appearance-none"
-                    >
-                      {villas.map((villa, i) => (
-                        <option key={villa.name} value={i}>
-                          {villa.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {offers && (
+                    <div className="flex flex-col gap-4">
+                      <p className="text-tiss-charcoal/60 text-[10px] tracking-widest uppercase">
+                        {nights} {nights === 1 ? "night" : "nights"} &middot;{" "}
+                        {guests} {guests === 1 ? "guest" : "guests"}
+                      </p>
 
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="checkIn"
-                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                      >
-                        Check-in
-                      </label>
-                      <input
-                        id="checkIn"
-                        type="date"
-                        required
-                        min={today}
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
-                      />
+                      {beds24Rooms.map((villa, i) => {
+                        const offer = offerFor(villa.roomId);
+                        const available = Boolean(offer?.available);
+                        const tooSmall = guests > villa.maxGuests;
+                        const selected = i === villaIndex;
+                        return (
+                          <button
+                            key={villa.roomId}
+                            type="button"
+                            disabled={!available}
+                            onClick={() => setVillaIndex(i)}
+                            className={`text-left border px-6 py-5 flex justify-between items-center gap-4 transition-colors duration-300 ${
+                              selected && available
+                                ? "border-tiss-charcoal bg-tiss-sand/40"
+                                : "border-tiss-charcoal/15 hover:border-tiss-charcoal/40"
+                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-tiss-charcoal/15`}
+                          >
+                            <div>
+                              <p className="font-spectral text-xl text-tiss-charcoal">
+                                {villa.name}
+                              </p>
+                              <p className="text-xs text-tiss-charcoal/60 mt-1">
+                                {available
+                                  ? `${offer!.unitsAvailable} available`
+                                  : tooSmall
+                                    ? `Sleeps up to ${villa.maxGuests}`
+                                    : "Not available for these dates"}
+                              </p>
+                            </div>
+                            {available && offer?.price != null && (
+                              <div className="text-right shrink-0">
+                                <p className="text-tiss-charcoal">
+                                  {idr.format(offer.price)}
+                                </p>
+                                <p className="text-xs text-tiss-charcoal/60">
+                                  {idr.format(offer.price / nights)} / night
+                                </p>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+
+                      {selectedOffer?.available && (
+                        <>
+                          <a
+                            href={whatsappLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${primaryButton} mt-6 inline-flex items-center gap-3`}
+                          >
+                            <IconWhatsApp className="size-4" />
+                            Book {selectedVilla.name} via WhatsApp
+                          </a>
+                          <p className="-mt-2 text-tiss-charcoal/50 text-xs font-light max-w-md">
+                            Opens WhatsApp with your dates filled in. Our team
+                            confirms your booking and sends payment details
+                            there.
+                          </p>
+                        </>
+                      )}
                     </div>
-                    <div>
-                      <label
-                        htmlFor="checkOut"
-                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                      >
-                        Check-out
-                      </label>
-                      <input
-                        id="checkOut"
-                        type="date"
-                        required
-                        min={checkIn || today}
-                        value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
-                      />
-                    </div>
-                  </div>
+                  )}
+                </div>
 
-                  <div>
-                    <label
-                      htmlFor="guests"
-                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                    >
-                      Guests
-                    </label>
-                    <select
-                      id="guests"
-                      value={guests}
-                      onChange={(e) => setGuests(Number(e.target.value))}
-                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal appearance-none"
-                    >
-                      <option value={1}>1 guest</option>
-                      <option value={2}>2 guests</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                      >
-                        Full name
-                      </label>
-                      <input
-                        id="name"
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Your name"
-                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                      >
-                        Phone (optional)
-                      </label>
-                      <input
-                        id="phone"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+62 ..."
-                        className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                    >
-                      Email
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@email.com"
-                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="notes"
-                      className="block text-[10px] tracking-widest uppercase text-tiss-charcoal/60 mb-2"
-                    >
-                      Special requests (optional)
-                    </label>
-                    <textarea
-                      id="notes"
-                      rows={3}
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Anniversary, dietary needs, late arrival..."
-                      className="w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="self-start bg-tiss-clay text-tiss-oat px-10 py-4 tracking-widest text-xs uppercase cursor-pointer transition duration-300 hover:brightness-90"
-                  >
-                    Check availability
-                  </button>
-                </form>
-              )}
             </Reveal>
 
             {/* SUMMARY */}
@@ -329,7 +370,7 @@ export default function ReservePage() {
                 </div>
                 <div className="p-8">
                   <p className="text-tiss-clay text-[10px] tracking-widest mb-3 uppercase">
-                    Villa 0{villaIndex + 1}
+                    Villa Type 0{villaIndex + 1}
                   </p>
                   <h3 className="text-tiss-charcoal font-spectral text-2xl mb-3">
                     {selectedVilla.name}
@@ -341,11 +382,15 @@ export default function ReservePage() {
                   <div className="flex flex-col gap-3 border-t border-tiss-charcoal/10 pt-6 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-tiss-charcoal/60">Check-in</span>
-                      <span className="text-tiss-charcoal">{checkIn || "—"}</span>
+                      <span className="text-tiss-charcoal">
+                        {checkIn || "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-tiss-charcoal/60">Check-out</span>
-                      <span className="text-tiss-charcoal">{checkOut || "—"}</span>
+                      <span className="text-tiss-charcoal">
+                        {checkOut || "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-tiss-charcoal/60">Nights</span>
@@ -357,6 +402,14 @@ export default function ReservePage() {
                       <span className="text-tiss-charcoal/60">Guests</span>
                       <span className="text-tiss-charcoal">{guests}</span>
                     </div>
+                    {selectedOffer?.available && selectedOffer.price != null && (
+                      <div className="flex justify-between text-sm border-t border-tiss-charcoal/10 pt-3 mt-1">
+                        <span className="text-tiss-charcoal/60">Total</span>
+                        <span className="text-tiss-charcoal font-medium">
+                          {idr.format(selectedOffer.price)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-3 border-t border-tiss-charcoal/10 pt-6">
@@ -366,9 +419,7 @@ export default function ReservePage() {
                         className="flex items-center gap-3"
                       >
                         <Image
-                          src={feature.icon
-                            .replace("/icons/oat/", "/icons/green/")
-                            .replace("TISS_ICON_OAT_", "TISS_ICON_GREEN_")}
+                          src={feature.icon}
                           alt=""
                           width={16}
                           height={16}
@@ -418,7 +469,6 @@ export default function ReservePage() {
         </section>
       </main>
 
-      {/* Slim footer for the detail page */}
       <Footer />
     </>
   );

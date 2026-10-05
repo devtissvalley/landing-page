@@ -61,6 +61,45 @@ export const villas = [
   },
 ];
 
+// --- BEDS24 (booking on /reserve) ---
+
+// Beds24 property id for Tiss Valley.
+export const BEDS24_PROPERTY_ID = 355365;
+
+// Bookable room types, mirrored from Beds24 property 355365. These are what
+// /reserve checks and books — separate from `villas` above, which drives the
+// display pages. `units` and `maxGuests` copy Beds24's qty and maxPeople;
+// update both places together. Photos are placeholders until each room type
+// has its own shot.
+export const beds24Rooms = [
+  {
+    roomId: 732360, // Beds24: "King Room with Pool View"
+    name: "Pool View Villa",
+    caption: "Looking out over its own plunge pool, set into the terracing.",
+    src: "/assets/villa/upper-suite.webp",
+    units: 3,
+    // Beds24 currently allows 1 guest for this room — likely a setting to
+    // raise to 2 there.
+    maxGuests: 1,
+  },
+  {
+    roomId: 732361, // Beds24: "King Room with Mountain View"
+    name: "Mountain View Villa",
+    caption: "Facing the highland ridgeline above Sebatu, first light at the door.",
+    src: "/assets/villa/lower-suite.webp",
+    units: 2,
+    maxGuests: 2,
+  },
+  {
+    roomId: 732362, // Beds24: "King Room with Garden View"
+    name: "Garden View Villa",
+    caption: "Ground level, surrounded by planting on every side.",
+    src: "/assets/villa/garden-villa.webp",
+    units: 1,
+    maxGuests: 2,
+  },
+];
+
 // Fitur list untuk section THE VILLAS
 export const villaFeatures = [
   {
