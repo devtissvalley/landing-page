@@ -46,42 +46,41 @@ export const brandEssences = [
   { title: "Care without fuss", desc: "Warm, unhurried, never performed." },
 ];
 
+// Beds24 property id for Tiss Valley; the /reserve page hands off to its
+// booking page.
+export const BEDS24_PROPERTY_ID = 355365;
+
+// Villa types, mirrored from Beds24 property 355365 (Tiss Valley).
+// `roomId` is the Beds24 room type id; `units` and `maxGuests` copy the
+// room's qty and maxPeople there — update both places together.
+// Beds24 names: 732360 "King Room with Pool View", 732361 "King Room with
+// Mountain View", 732362 "King Room with Garden View".
 export const villas = [
   {
-    name: "Terrace Villa",
-    caption: "Steps into the terracing, first light at the door.",
-    src: "/assets/villa-terrace.webp",
-    span: "md:row-span-2",
+    roomId: 732360,
+    name: "Pool View Villa",
+    caption: "Looking out over its own plunge pool, set into the terracing.",
+    view: "Pool View",
+    units: 3,
+    // Beds24 currently allows 1 guest for this room — likely a setting to
+    // raise to 2 there.
+    maxGuests: 1,
   },
   {
-    name: "Garden Villa",
+    roomId: 732361,
+    name: "Mountain View Villa",
+    caption: "Facing the highland ridgeline above Sebatu, first light at the door.",
+    view: "Mountain View",
+    units: 2,
+    maxGuests: 2,
+  },
+  {
+    roomId: 732362,
+    name: "Garden View Villa",
     caption: "Ground level, surrounded by planting on every side.",
-    src: "/assets/villa-garden.webp",
-    span: "",
-  },
-  {
-    name: "End Villa",
-    caption: "Furthest from the gate, closest to the treeline.",
-    src: "/assets/villa-end.webp",
-    span: "",
-  },
-  {
-    name: "Stone Villa",
-    caption: "Volcanic stone walls, open-air soaking tub.",
-    src: "/assets/villa-stone.webp",
-    span: "",
-  },
-  {
-    name: "Canopy Villa",
-    caption: "Raised deck, dining in the open air.",
-    src: "/assets/villa-canopy.webp",
-    span: "",
-  },
-  {
-    name: "Spring Villa",
-    caption: "Nearest the spring-fed pool at the valley floor.",
-    src: "/assets/villa-spring.webp",
-    span: "",
+    view: "Garden View",
+    units: 1,
+    maxGuests: 2,
   },
 ];
 
