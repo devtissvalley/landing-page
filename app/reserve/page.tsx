@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Reveal from "@/components/Reveal";
-import { villas, villaFeatures } from "@/lib/data";
+import { PAYMENT, villas, villaFeatures } from "@/lib/data";
 import type { RoomOffer } from "@/lib/beds24";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
@@ -26,6 +26,48 @@ function nightsBetween(checkIn: string, checkOut: string) {
   return diff > 0 ? diff : 0;
 }
 
+type Step = "search" | "details" | "done";
+type Checkout = {
+  token: string;
+  orderId: string;
+  amount: number;
+  testMode: boolean;
+  clientKey: string;
+  snapJs: string;
+};
+type PaymentResult = {
+  state: "paid" | "pending" | "failed" | "unknown";
+  bookingId: number | null;
+  testMode: boolean;
+};
+
+type SnapCallbacks = {
+  onSuccess?: () => void;
+  onPending?: () => void;
+  onError?: () => void;
+  onClose?: () => void;
+};
+declare global {
+  interface Window {
+    snap?: { pay: (token: string, callbacks: SnapCallbacks) => void };
+  }
+}
+
+// Load Midtrans' Snap script once, on demand.
+function loadSnap(src: string, clientKey: string): Promise<void> {
+  if (window.snap) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.dataset.clientKey = clientKey;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Couldn't load the payment window."));
+    document.head.appendChild(script);
+  });
+}
+
+// Midtrans order ids made by /api/checkout.
+const ORDER_ID = /^TISS-(\d+|TEST)-[a-z0-9]+$/;
 
 const inputClass =
   "w-full bg-transparent border-b border-tiss-charcoal/25 text-tiss-charcoal placeholder:text-tiss-charcoal/35 py-3 text-sm md:text-base outline-none focus:border-tiss-charcoal";
@@ -42,15 +84,28 @@ export default function ReservePage() {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
 
+  const [step, setStep] = useState<Step>("search");
   const [offers, setOffers] = useState<RoomOffer[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [notes, setNotes] = useState("");
+  const [checkout, setCheckout] = useState<Checkout | null>(null);
+  const [result, setResult] = useState<PaymentResult | null>(null);
 
   const selectedVilla = villas[villaIndex];
   const nights = nightsBetween(checkIn, checkOut);
   const offerFor = (roomId: number) =>
     offers?.find((o) => o.roomId === roomId);
   const selectedOffer = offerFor(selectedVilla.roomId);
+  const amountDue =
+    selectedOffer?.price != null
+      ? Math.round((selectedOffer.price * PAYMENT.percent) / 100)
+      : null;
 
   // Booking is finished on WhatsApp for now: open a chat with the stay
   // already written out.
@@ -69,14 +124,38 @@ export default function ReservePage() {
       .join("\n"),
   )}`;
 
+  const showResult = async (orderId: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(
+        `/api/checkout/status?${new URLSearchParams({ orderId })}`,
+      );
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Please refresh in a moment.");
+      setResult(body);
+      setStep("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Please refresh in a moment.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Pre-select the villa when arriving from a per-villa "Reserve"/"Check
   // rates" link (e.g. /reserve?villa=Pool%20View%20Villa). Read on mount via
   // window.location rather than useSearchParams so this page doesn't need
   // a Suspense boundary.
   useEffect(() => {
-    const villaParam = new URLSearchParams(window.location.search).get(
-      "villa",
-    );
+    const params = new URLSearchParams(window.location.search);
+    // Back from a Midtrans redirect (e.g. e-wallet app): show the result.
+    const returnedOrder = params.get("order_id");
+    if (returnedOrder && ORDER_ID.test(returnedOrder)) {
+      void showResult(returnedOrder);
+      document.getElementById("book")?.scrollIntoView();
+      return;
+    }
+    const villaParam = params.get("villa");
     if (!villaParam) return;
     const idx = villas.findIndex(
       (v) => v.name.toLowerCase() === villaParam.toLowerCase(),
@@ -114,6 +193,50 @@ export default function ReservePage() {
       }
     } catch (err) {
       setOffers(null);
+      setError(err instanceof Error ? err.message : "Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openPayment = async (c: Checkout) => {
+    await loadSnap(c.snapJs, c.clientKey);
+    window.snap!.pay(c.token, {
+      onSuccess: () => void showResult(c.orderId),
+      onPending: () => void showResult(c.orderId),
+      onError: () => void showResult(c.orderId),
+      onClose: () =>
+        setError(
+          "The payment window was closed before paying. Your villa is held for a short while — resume below.",
+        ),
+    });
+  };
+
+  const pay = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          roomId: selectedVilla.roomId,
+          checkin: checkIn,
+          checkout: checkOut,
+          guests,
+          firstName,
+          lastName,
+          email,
+          phone,
+          notes,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Please try again.");
+      setCheckout(body);
+      await openPayment(body);
+    } catch (err) {
       setError(err instanceof Error ? err.message : "Please try again.");
     } finally {
       setLoading(false);
@@ -165,7 +288,7 @@ export default function ReservePage() {
               style={{ animationDelay: "0.5s" }}
             >
               Choose your dates to see live availability and pricing, then
-              send us your booking request.
+              book and pay securely online.
             </p>
 
             <a
@@ -185,6 +308,7 @@ export default function ReservePage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
             <Reveal className="lg:col-span-3">
+              {step === "search" && (
                 <div className="flex flex-col gap-10">
                   <form
                     onSubmit={checkAvailability}
@@ -333,26 +457,257 @@ export default function ReservePage() {
                       })}
 
                       {selectedOffer?.available && (
-                        <>
+                        <div className="flex flex-wrap items-center gap-6 mt-6">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setError("");
+                              setStep("details");
+                            }}
+                            className={primaryButton}
+                          >
+                            Continue with {selectedVilla.name}
+                          </button>
                           <a
                             href={whatsappLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`${primaryButton} mt-6 inline-flex items-center gap-3`}
+                            className="inline-flex items-center gap-2 text-tiss-charcoal text-xs tracking-widest uppercase link-underline"
                           >
                             <IconWhatsApp className="size-4" />
-                            Book {selectedVilla.name} via WhatsApp
+                            Or book via WhatsApp
                           </a>
-                          <p className="-mt-2 text-tiss-charcoal/50 text-xs font-light max-w-md">
-                            Opens WhatsApp with your dates filled in. Our team
-                            confirms your booking and sends payment details
-                            there.
-                          </p>
-                        </>
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
+              )}
+
+              {step === "details" && (
+                <form onSubmit={pay} className="flex flex-col gap-10">
+                  <div>
+                    <p className="text-tiss-charcoal/60 text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                      YOUR DETAILS
+                    </p>
+                    <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal">
+                      Who&rsquo;s staying?
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="firstName" className={labelClass}>
+                        First name
+                      </label>
+                      <input
+                        id="firstName"
+                        required
+                        autoComplete="given-name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="lastName" className={labelClass}>
+                        Last name
+                      </label>
+                      <input
+                        id="lastName"
+                        required
+                        autoComplete="family-name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="email" className={labelClass}>
+                        Email
+                      </label>
+                      <input
+                        id="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@email.com"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="phone" className={labelClass}>
+                        Phone / WhatsApp
+                      </label>
+                      <input
+                        id="phone"
+                        type="tel"
+                        required
+                        autoComplete="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+62 ..."
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="notes" className={labelClass}>
+                      Special requests (optional)
+                    </label>
+                    <textarea
+                      id="notes"
+                      rows={3}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Anniversary, dietary needs, late arrival..."
+                      className={`${inputClass} resize-none`}
+                    />
+                  </div>
+
+                  {error && (
+                    <p className="text-tiss-clay text-sm" role="alert">
+                      {error}
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-6">
+                    {checkout ? (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => {
+                          setError("");
+                          void openPayment(checkout);
+                        }}
+                        className={primaryButton}
+                      >
+                        Resume payment
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className={primaryButton}
+                      >
+                        {loading
+                          ? "Opening payment…"
+                          : amountDue != null
+                            ? `Pay ${idr.format(amountDue)}`
+                            : "Pay now"}
+                      </button>
+                    )}
+                    {!checkout && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setError("");
+                          setStep("search");
+                        }}
+                        className="text-tiss-charcoal text-xs tracking-widest uppercase link-underline cursor-pointer"
+                      >
+                        Back
+                      </button>
+                    )}
+                  </div>
+                  <p className="-mt-6 text-tiss-charcoal/50 text-xs font-light max-w-md">
+                    {PAYMENT.percent < 100
+                      ? `You pay a ${PAYMENT.percent}% deposit now; the rest is settled with our team. `
+                      : ""}
+                    Secure payment by Midtrans: QRIS, bank transfer, e-wallet or
+                    card. Your villa is held for {PAYMENT.expiryMinutes} minutes
+                    while you pay.
+                  </p>
+                </form>
+              )}
+
+              {step === "done" && result && (
+                <div className="border border-tiss-charcoal/15 px-8 py-12 md:px-12 md:py-16">
+                  {result.state === "paid" && (
+                    <>
+                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                        PAYMENT RECEIVED
+                        {result.bookingId ? ` · BOOKING ${result.bookingId}` : ""}
+                      </p>
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
+                        You&rsquo;re booked{firstName ? `, ${firstName}` : ""}.
+                      </h2>
+                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
+                        Thank you. A confirmation is on its way to your email.
+                        We look forward to welcoming you to the valley.
+                      </p>
+                    </>
+                  )}
+                  {result.state === "pending" && (
+                    <>
+                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                        WAITING FOR PAYMENT
+                      </p>
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
+                        Almost there.
+                      </h2>
+                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
+                        Complete the payment using the instructions from
+                        Midtrans within {PAYMENT.expiryMinutes} minutes. Your
+                        booking is confirmed by email as soon as it arrives.
+                      </p>
+                      {checkout && (
+                        <button
+                          type="button"
+                          disabled={loading}
+                          onClick={() => void showResult(checkout.orderId)}
+                          className={primaryButton}
+                        >
+                          {loading ? "Checking…" : "I've paid — check again"}
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {(result.state === "failed" || result.state === "unknown") && (
+                    <>
+                      <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
+                        PAYMENT NOT COMPLETED
+                      </p>
+                      <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
+                        The payment didn&rsquo;t go through.
+                      </h2>
+                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
+                        Nothing was charged. You can try again, or message us
+                        on WhatsApp and we&rsquo;ll help you book.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCheckout(null);
+                          setResult(null);
+                          setOffers(null);
+                          setStep("search");
+                        }}
+                        className={primaryButton}
+                      >
+                        Start again
+                      </button>
+                    </>
+                  )}
+                  {result.testMode && (
+                    <p className="mt-10 border-t border-tiss-charcoal/10 pt-6 text-tiss-charcoal/50 text-xs">
+                      Test mode: this payment ran in Midtrans, but no booking
+                      was created in Beds24.
+                    </p>
+                  )}
+                  {error && (
+                    <p className="mt-6 text-tiss-clay text-sm" role="alert">
+                      {error}
+                    </p>
+                  )}
+                </div>
+              )}
 
             </Reveal>
 
@@ -407,6 +762,16 @@ export default function ReservePage() {
                         <span className="text-tiss-charcoal/60">Total</span>
                         <span className="text-tiss-charcoal font-medium">
                           {idr.format(selectedOffer.price)}
+                        </span>
+                      </div>
+                    )}
+                    {PAYMENT.percent < 100 && amountDue != null && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-tiss-charcoal/60">
+                          Due now ({PAYMENT.percent}%)
+                        </span>
+                        <span className="text-tiss-charcoal font-medium">
+                          {idr.format(amountDue)}
                         </span>
                       </div>
                     )}

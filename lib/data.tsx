@@ -49,6 +49,15 @@ export const brandEssences = [
 // Beds24 property id for Tiss Valley (live availability on /reserve).
 export const BEDS24_PROPERTY_ID = 355365;
 
+// Online payment on /reserve (Midtrans). `percent` is the share of the stay
+// price charged at booking: 100 = pay in full, e.g. 30 = 30% deposit.
+// `expiryMinutes` is how long the guest has to pay before the held booking
+// is released. Both are placeholders until the client confirms them.
+export const PAYMENT = {
+  percent: 100,
+  expiryMinutes: 60,
+};
+
 // Villa types — the same list on the home page, /villas and /reserve.
 // Mirrored from Beds24 property 355365: `roomId` is the Beds24 room type id;
 // `units` and `maxGuests` copy its qty and maxPeople there, so update both
@@ -61,9 +70,7 @@ export const villas = [
     view: "Pool View",
     src: "/assets/villa/upper-suite.webp",
     units: 3,
-    // Beds24 currently allows 1 guest for this room — likely a setting to
-    // raise to 2 there.
-    maxGuests: 1,
+    maxGuests: 2,
   },
   {
     roomId: 732361, // Beds24: "King Room with Mountain View"
