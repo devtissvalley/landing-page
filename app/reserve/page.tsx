@@ -124,7 +124,10 @@ export default function ReservePage() {
       .join("\n"),
   )}`;
 
-  const showResult = async (orderId: string) => {
+  // `closedPopup`: the guest closed Snap. If they never picked a payment
+  // method, stay on the form; if they did (e.g. got a VA number to pay
+  // later), show the pending/paid result instead.
+  const showResult = async (orderId: string, closedPopup = false) => {
     setLoading(true);
     setError("");
     try {
@@ -133,8 +136,18 @@ export default function ReservePage() {
       );
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "Please refresh in a moment.");
+      if (closedPopup && body.state === "unknown") {
+        setError(
+          "The payment window was closed before paying. Your villa is held for a short while — resume below.",
+        );
+        return;
+      }
       setResult(body);
       setStep("done");
+      // The result replaces a long form; bring it into view.
+      requestAnimationFrame(() =>
+        document.getElementById("book")?.scrollIntoView({ behavior: "smooth" }),
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Please refresh in a moment.");
     } finally {
@@ -205,10 +218,7 @@ export default function ReservePage() {
       onSuccess: () => void showResult(c.orderId),
       onPending: () => void showResult(c.orderId),
       onError: () => void showResult(c.orderId),
-      onClose: () =>
-        setError(
-          "The payment window was closed before paying. Your villa is held for a short while — resume below.",
-        ),
+      onClose: () => void showResult(c.orderId, true),
     });
   };
 
