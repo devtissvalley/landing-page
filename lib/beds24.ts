@@ -62,6 +62,8 @@ async function call(
 // Short in-memory cache so repeated searches for the same stay don't each
 // wait on Beds24. Pass `fresh` to skip it.
 const OFFERS_TTL_MS = 60_000;
+// Bounded so a flood of distinct date searches can't grow memory forever.
+const OFFERS_CACHE_MAX = 500;
 const offersCache = new Map<string, { at: number; offers: RoomOffer[] }>();
 
 /** Live availability and price for every room type, for one stay. */
@@ -76,6 +78,11 @@ export async function getOffers(
   if (!fresh && hit && Date.now() - hit.at < OFFERS_TTL_MS) return hit.offers;
 
   const offers = await fetchOffers(checkin, checkout, guests);
+  offersCache.delete(key);
+  if (offersCache.size >= OFFERS_CACHE_MAX) {
+    // Map keeps insertion order: the first key is the oldest entry.
+    offersCache.delete(offersCache.keys().next().value!);
+  }
   offersCache.set(key, { at: Date.now(), offers });
   return offers;
 }
