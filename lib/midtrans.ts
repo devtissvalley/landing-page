@@ -69,7 +69,10 @@ export type SnapRequest = {
   itemName: string;
   customer: { firstName: string; lastName: string; email: string; phone: string };
   finishUrl: string;
+  /** Time to complete a started payment (e.g. pay the VA). */
   expiryMinutes: number;
+  /** Time the payment window works before a method is chosen. */
+  pageMinutes: number;
 };
 
 /** Create a Snap transaction and return its token. */
@@ -95,6 +98,7 @@ export async function createSnapTransaction(req: SnapRequest): Promise<string> {
         phone: req.customer.phone,
       },
       expiry: { unit: "minutes", duration: req.expiryMinutes },
+      page_expiry: { unit: "minutes", duration: req.pageMinutes },
       callbacks: { finish: req.finishUrl },
       credit_card: { secure: true },
     }),

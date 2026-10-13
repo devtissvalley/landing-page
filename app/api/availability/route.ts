@@ -1,4 +1,5 @@
-import { Beds24Error, getOffers } from "@/lib/beds24";
+import { Beds24Error, getCancellationRule, getOffers } from "@/lib/beds24";
+import { sweepStaleHolds } from "@/lib/payments";
 import { limitRequest } from "@/lib/rate-limit";
 import { parseStay } from "@/lib/stay";
 
@@ -20,8 +21,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    const offers = await getOffers(stay.checkin, stay.checkout, stay.guests);
-    return Response.json({ currency: "IDR", offers });
+    sweepStaleHolds();
+    const [offers, cancellation] = await Promise.all([
+      getOffers(stay.checkin, stay.checkout, stay.guests),
+      // The policy is shown before paying; a lookup failure shouldn't hide
+      // availability, the page then falls back to "ask us".
+      getCancellationRule().catch((err) => {
+        console.error(err);
+        return null;
+      }),
+    ]);
+    return Response.json({ currency: "IDR", offers, cancellation });
   } catch (err) {
     console.error(err);
     const message =

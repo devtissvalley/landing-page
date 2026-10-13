@@ -141,6 +141,10 @@ export type NewBooking = {
   notes: string;
 };
 
+// Written on every hold, and the only thing the stale-hold sweep matches on,
+// so it never touches bookings from other channels.
+const HOLD_MARKER = "Website booking — awaiting Midtrans payment";
+
 function writeToken() {
   return process.env.BEDS24_WRITE_TOKEN || null;
 }
@@ -187,7 +191,7 @@ export async function createHeldBooking(b: NewBooking): Promise<number | null> {
       mobile: b.phone,
       comments: b.notes,
       price: b.price,
-      apiMessage: "Website booking — awaiting Midtrans payment",
+      apiMessage: HOLD_MARKER,
       actions: { checkAvailability: true, autoInvoiceItemCharge: true },
     },
   ]);
@@ -255,4 +259,59 @@ export async function releaseHeldBooking(id: number) {
   // Only cancel our own unpaid hold — never a booking that got confirmed.
   if (!booking || booking.status !== "request") return;
   await postBookings(token, [{ id, status: "cancelled" }]);
+}
+
+/**
+ * Unpaid holds created by this website (status "request" with our marker),
+ * for the stale-hold sweep. Empty in test mode.
+ */
+export async function listHeldWebsiteBookings(): Promise<
+  { id: number; bookedAt: number }[]
+> {
+  const token = writeToken();
+  if (!token) return [];
+  const params = new URLSearchParams({
+    propertyId: String(BEDS24_PROPERTY_ID),
+    status: "request",
+  });
+  const body = await call(`/bookings?${params}`, token);
+  type ApiBooking = { id: number; apiMessage?: string; bookingTime?: string };
+  return ((body.data ?? []) as ApiBooking[])
+    .filter((b) => b.apiMessage === HOLD_MARKER && b.bookingTime)
+    .map((b) => ({ id: b.id, bookedAt: Date.parse(b.bookingTime!) }))
+    .filter((b) => Number.isFinite(b.bookedAt));
+}
+
+// --- Cancellation policy -------------------------------------------------
+
+export type CancellationRule =
+  | { type: "always" }
+  | { type: "never" }
+  | { type: "daysBeforeArrival"; days: number };
+
+const RULE_TTL_MS = 10 * 60_000;
+let ruleCache: { at: number; rule: CancellationRule } | null = null;
+
+/**
+ * The property's guest-cancellation rule as set in Beds24 (Settings →
+ * Properties → Booking Rules), so the website always shows what Beds24
+ * enforces. Cached for 10 minutes.
+ */
+export async function getCancellationRule(): Promise<CancellationRule> {
+  if (ruleCache && Date.now() - ruleCache.at < RULE_TTL_MS) return ruleCache.rule;
+
+  const token = process.env.BEDS24_TOKEN;
+  if (!token) throw new Beds24Error("BEDS24_TOKEN is not set");
+  const params = new URLSearchParams({ id: String(BEDS24_PROPERTY_ID) });
+  const body = await call(`/properties?${params}`, token);
+  const raw = body.data?.[0]?.bookingRules?.allowGuestCancellation ?? {};
+
+  let rule: CancellationRule = { type: "never" };
+  if (raw.type === "always") rule = { type: "always" };
+  else if (raw.type === "daysBeforeArrival") {
+    const days = Number(raw.daysBeforeArrivalValue);
+    if (Number.isInteger(days) && days >= 0) rule = { type: "daysBeforeArrival", days };
+  }
+  ruleCache = { at: Date.now(), rule };
+  return rule;
 }

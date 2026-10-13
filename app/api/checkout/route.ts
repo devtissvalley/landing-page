@@ -10,8 +10,12 @@ import {
   createSnapTransaction,
   snapClientConfig,
 } from "@/lib/midtrans";
-import { makeOrderId } from "@/lib/payments";
+import { makeOrderId, sweepStaleHolds } from "@/lib/payments";
+import { clientIp, limitRequest } from "@/lib/rate-limit";
+import { readJson } from "@/lib/request";
+import { SITE_URL } from "@/lib/seo";
 import { parseStay } from "@/lib/stay";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -26,8 +30,23 @@ function bad(error: string, status = 400) {
 // POST /api/checkout — hold the villa in Beds24 and open a Midtrans payment.
 // The price always comes from a fresh Beds24 check, never from the browser.
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return bad("Invalid request.");
+  // Every checkout holds a villa, so it is the endpoint worth abusing:
+  // a few per IP per hour, plus a bot check below.
+  const limited = limitRequest(request, "checkout", 6, 60 * 60_000);
+  if (limited) return limited;
+
+  const body = await readJson(request);
+  if (!body) return bad("Invalid request.");
+
+  const captcha = await verifyTurnstile(body.turnstileToken, clientIp(request));
+  if (captcha === "failed") {
+    return bad("Please complete the security check and try again.");
+  }
+  if (captcha === "not-configured" && process.env.MIDTRANS_IS_PRODUCTION === "true") {
+    console.error("[checkout] TURNSTILE_SECRET_KEY missing — refusing live checkout");
+    return bad("Online booking is unavailable right now. Please message us on WhatsApp.", 503);
+  }
+  sweepStaleHolds();
 
   const stay = parseStay(body.checkin, body.checkout, body.guests);
   if ("error" in stay) return bad(stay.error);
@@ -69,18 +88,18 @@ export async function POST(request: Request) {
     });
 
     const orderId = makeOrderId(bookingId);
-    // Behind nginx the app sees http; trust the proxy's forwarded proto.
-    const url = new URL(request.url);
-    const proto = request.headers.get("x-forwarded-proto") ?? url.protocol.slice(0, -1);
-    const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? url.host;
+    // Fixed origin, not the request's Host header (which the client sets).
+    // PUBLIC_SITE_URL overrides it for local testing.
+    const origin = process.env.PUBLIC_SITE_URL || SITE_URL;
 
     const token = await createSnapTransaction({
       orderId,
       amount,
       itemName: `${villa.name}, ${stay.checkin} to ${stay.checkout}`,
       customer: { firstName, lastName, email, phone },
-      finishUrl: `${proto}://${host}/reserve`,
+      finishUrl: `${origin}/reserve`,
       expiryMinutes: PAYMENT.expiryMinutes,
+      pageMinutes: PAYMENT.pageMinutes,
     });
 
     return Response.json({

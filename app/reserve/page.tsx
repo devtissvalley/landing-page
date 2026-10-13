@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/Reveal";
 import { PAYMENT, villas, villaFeatures } from "@/lib/data";
-import type { RoomOffer } from "@/lib/beds24";
+import type { CancellationRule, RoomOffer } from "@/lib/beds24";
 import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -31,6 +31,68 @@ function nightsBetween(checkIn: string, checkOut: string) {
     (Date.parse(checkOut) - Date.parse(checkIn)) / (1000 * 60 * 60 * 24),
   );
   return diff > 0 ? diff : 0;
+}
+
+/** "24 hours", "60 minutes" … for the payment window texts. */
+function duration(minutes: number) {
+  if (minutes % 60 === 0) {
+    const h = minutes / 60;
+    return `${h} ${h === 1 ? "hour" : "hours"}`;
+  }
+  return `${minutes} minutes`;
+}
+
+const longDate = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/** The Beds24 cancellation rule, worded for this stay. */
+function cancellationText(rule: CancellationRule | null, checkIn: string) {
+  if (!rule) {
+    return "Please ask us about the cancellation policy before you pay.";
+  }
+  if (rule.type === "always") return "Free cancellation up to check-in.";
+  if (rule.type === "never") return "Non-refundable: this booking can't be cancelled for a refund.";
+  const deadline = addDays(checkIn, -rule.days);
+  const today = new Date().toISOString().split("T")[0];
+  if (deadline < today) {
+    return `Non-refundable: check-in is less than ${rule.days} days away, so this booking can't be cancelled for a refund.`;
+  }
+  return `Free cancellation until ${longDate.format(new Date(`${deadline}T00:00:00Z`))} (${rule.days} days before check-in). After that, the booking is non-refundable.`;
+}
+
+// Cloudflare Turnstile bot check before a villa is held. Off when no site
+// key is configured (local development).
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+type Turnstile = {
+  render: (
+    el: HTMLElement,
+    opts: {
+      sitekey: string;
+      callback: (token: string) => void;
+      "expired-callback": () => void;
+      "error-callback": () => void;
+      theme: "light";
+    },
+  ) => string;
+  reset: (id: string) => void;
+  remove: (id: string) => void;
+};
+
+function loadTurnstile(): Promise<Turnstile> {
+  const w = window as Window & { turnstile?: Turnstile };
+  if (w.turnstile) return Promise.resolve(w.turnstile);
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.onload = () => (w.turnstile ? resolve(w.turnstile) : reject());
+    script.onerror = () => reject(new Error("Couldn't load the security check."));
+    document.head.appendChild(script);
+  });
 }
 
 type Step = "search" | "details" | "done";
@@ -94,6 +156,10 @@ export default function ReservePage() {
 
   const [step, setStep] = useState<Step>("search");
   const [offers, setOffers] = useState<RoomOffer[] | null>(null);
+  const [cancellation, setCancellation] = useState<CancellationRule | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileBox = useRef<HTMLDivElement>(null);
+  const turnstileWidget = useRef<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -205,6 +271,7 @@ export default function ReservePage() {
       if (!res.ok) throw new Error(body.error ?? "Please try again.");
       const found: RoomOffer[] = body.offers;
       setOffers(found);
+      setCancellation(body.cancellation ?? null);
       // Keep the chosen villa if it's bookable, else move to the first one that is.
       const isOpen = (i: number) =>
         found.some((o) => o.roomId === villas[i].roomId && o.available);
@@ -266,6 +333,36 @@ export default function ReservePage() {
     );
   };
 
+  // Render the bot check when the details form shows and no payment is open.
+  const needsCaptcha = Boolean(TURNSTILE_SITE_KEY) && step === "details" && !checkout;
+  useEffect(() => {
+    if (!needsCaptcha || !turnstileBox.current) return;
+    let cancelled = false;
+    loadTurnstile()
+      .then((ts) => {
+        if (cancelled || !turnstileBox.current) return;
+        turnstileWidget.current = ts.render(turnstileBox.current, {
+          sitekey: TURNSTILE_SITE_KEY!,
+          callback: setTurnstileToken,
+          "expired-callback": () => setTurnstileToken(""),
+          "error-callback": () => setTurnstileToken(""),
+          theme: "light",
+        });
+      })
+      .catch(() =>
+        setError("Couldn't load the security check. Please refresh the page."),
+      );
+    return () => {
+      cancelled = true;
+      const w = window as Window & { turnstile?: Turnstile };
+      if (turnstileWidget.current && w.turnstile) {
+        w.turnstile.remove(turnstileWidget.current);
+      }
+      turnstileWidget.current = null;
+      setTurnstileToken("");
+    };
+  }, [needsCaptcha]);
+
   const pay = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -284,10 +381,19 @@ export default function ReservePage() {
           email,
           phone,
           notes,
+          turnstileToken,
         }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Please try again.");
+      if (!res.ok) {
+        // Turnstile tokens are single-use: get a fresh one for the retry.
+        const w = window as Window & { turnstile?: Turnstile };
+        if (turnstileWidget.current && w.turnstile) {
+          w.turnstile.reset(turnstileWidget.current);
+          setTurnstileToken("");
+        }
+        throw new Error(body.error ?? "Please try again.");
+      }
       setCheckout(body);
       await openPayment(body);
     } catch (err) {
@@ -631,6 +737,15 @@ export default function ReservePage() {
                     />
                   </div>
 
+                  <div className="border-t border-tiss-charcoal/10 pt-6">
+                    <p className={labelClass}>Cancellation policy</p>
+                    <p className="text-tiss-charcoal/80 text-sm font-light leading-relaxed max-w-md">
+                      {cancellationText(cancellation, checkIn)}
+                    </p>
+                  </div>
+
+                  {needsCaptcha && <div ref={turnstileBox} className="min-h-[65px]" />}
+
                   {error && (
                     <p className="text-tiss-clay text-sm" role="alert">
                       {error}
@@ -653,7 +768,7 @@ export default function ReservePage() {
                     ) : (
                       <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || (needsCaptcha && !turnstileToken)}
                         className={primaryButton}
                       >
                         {loading
@@ -676,9 +791,10 @@ export default function ReservePage() {
                     {PAYMENT.percent < 100
                       ? `You pay a ${PAYMENT.percent}% deposit now; the rest is settled with our team. `
                       : ""}
-                    Secure payment by Midtrans: QRIS, bank transfer, e-wallet or
-                    card. Your villa is held for {PAYMENT.expiryMinutes} minutes
-                    while you pay.
+                    Secure payment by Midtrans: bank transfer (virtual account),
+                    card and more. Once you choose a payment method you have{" "}
+                    {duration(PAYMENT.expiryMinutes)} to pay; your villa is held
+                    until then.
                   </p>
                 </form>
               )}
@@ -710,7 +826,7 @@ export default function ReservePage() {
                       </h2>
                       <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
                         Complete the payment using the instructions from
-                        Midtrans within {PAYMENT.expiryMinutes} minutes. Your
+                        Midtrans within {duration(PAYMENT.expiryMinutes)}. Your
                         booking is confirmed by email as soon as it arrives.
                       </p>
                       <div className="flex flex-wrap items-center gap-6">

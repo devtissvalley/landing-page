@@ -49,13 +49,17 @@ export const brandEssences = [
 // Beds24 property id for Tiss Valley (live availability on /reserve).
 export const BEDS24_PROPERTY_ID = 355365;
 
-// Online payment on /reserve (Midtrans). `percent` is the share of the stay
-// price charged at booking: 100 = pay in full, e.g. 30 = 30% deposit.
-// `expiryMinutes` is how long the guest has to pay before the held booking
-// is released. Both are placeholders until the client confirms them.
+// Online payment on /reserve (Midtrans), as agreed with the client.
+// `percent`: share of the stay price charged at booking (100 = in full).
+// `expiryMinutes`: how long the guest has to complete a started payment,
+// e.g. pay a VA number; the villa stays held that long.
+// `pageMinutes`: how long the payment window can be opened before a method
+// is chosen. Holds where no payment was started are released after this,
+// so an abandoned checkout doesn't block a villa for a whole day.
 export const PAYMENT = {
   percent: 100,
-  expiryMinutes: 60,
+  expiryMinutes: 24 * 60,
+  pageMinutes: 60,
 };
 
 // Villa types — the same list on the home page, /villas and /reserve.
