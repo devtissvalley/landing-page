@@ -1,7 +1,17 @@
 // Shared validation for stay dates and guest count (used by the API routes).
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-const MAX_NIGHTS = 30;
+export const MAX_NIGHTS = 30;
+// Beds24 rejects arrivals roughly two years out, and rates are only loaded
+// about a year ahead, so online search stops at 12 months.
+export const MAX_ADVANCE_DAYS = 365;
+
+/** Latest check-in date bookable online, as YYYY-MM-DD. */
+export function lastBookableDate(from = new Date()) {
+  const d = new Date(from);
+  d.setUTCDate(d.getUTCDate() + MAX_ADVANCE_DAYS);
+  return d.toISOString().split("T")[0];
+}
 
 export type Stay = { checkin: string; checkout: string; guests: number };
 
@@ -27,6 +37,12 @@ export function parseStay(
   const today = new Date().toISOString().split("T")[0];
   if (checkin < today) {
     return { error: "Check-in cannot be in the past." };
+  }
+  if (checkin > lastBookableDate()) {
+    return {
+      error:
+        "Online booking is open up to 12 months ahead. For later dates, please message us on WhatsApp.",
+    };
   }
 
   const n = Number(guests);

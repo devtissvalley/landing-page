@@ -9,6 +9,7 @@ import { IconPhone, IconInstagram, IconWhatsApp } from "@/components/Icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { BUSINESS } from "@/lib/seo";
+import { MAX_NIGHTS, lastBookableDate } from "@/lib/stay";
 
 const MAX_GUESTS = Math.max(...villas.map((v) => v.maxGuests));
 
@@ -17,6 +18,12 @@ const idr = new Intl.NumberFormat("id-ID", {
   currency: "IDR",
   maximumFractionDigits: 0,
 });
+
+function addDays(date: string, days: number) {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().split("T")[0];
+}
 
 function nightsBetween(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return 0;
@@ -78,6 +85,7 @@ const primaryButton =
 
 export default function ReservePage() {
   const today = new Date().toISOString().split("T")[0];
+  const lastDay = lastBookableDate();
 
   const [villaIndex, setVillaIndex] = useState(0);
   const [checkIn, setCheckIn] = useState("");
@@ -343,6 +351,7 @@ export default function ReservePage() {
                           type="date"
                           required
                           min={today}
+                          max={lastDay}
                           value={checkIn}
                           onChange={(e) => {
                             setCheckIn(e.target.value);
@@ -360,6 +369,11 @@ export default function ReservePage() {
                           type="date"
                           required
                           min={checkIn || today}
+                          max={
+                            checkIn
+                              ? addDays(checkIn, MAX_NIGHTS)
+                              : addDays(lastDay, MAX_NIGHTS)
+                          }
                           value={checkOut}
                           onChange={(e) => {
                             setCheckOut(e.target.value);
