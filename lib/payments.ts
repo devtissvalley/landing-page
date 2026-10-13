@@ -4,13 +4,21 @@
 // is needed: "TISS-<bookingId>-<suffix>", or "TISS-TEST-<suffix>" in test mode
 // (no Beds24 write token, nothing booked).
 
+import { randomBytes } from "node:crypto";
 import { confirmPaidBooking, releaseHeldBooking } from "@/lib/beds24";
-import { getPaymentStatus, type PaymentState } from "@/lib/midtrans";
+import {
+  expireTransaction,
+  getPaymentStatus,
+  type PaymentState,
+} from "@/lib/midtrans";
 
 const ORDER_ID = /^TISS-(\d+|TEST)-[a-z0-9]+$/;
 
 export function makeOrderId(bookingId: number | null) {
-  return `TISS-${bookingId ?? "TEST"}-${Date.now().toString(36)}`;
+  // Random suffix: the order id is what lets a guest's browser cancel or
+  // check its own payment, so it must not be guessable.
+  const suffix = Date.now().toString(36) + randomBytes(5).toString("hex");
+  return `TISS-${bookingId ?? "TEST"}-${suffix}`;
 }
 
 export function isOrderId(value: unknown): value is string {
@@ -43,4 +51,18 @@ export async function syncPayment(orderId: string): Promise<{
     }
   }
   return { state: status.state, bookingId, testMode: bookingId === null };
+}
+
+/**
+ * The guest wants different dates: stop the old order from being paid and
+ * free the held villa. If the order turns out to be paid already, nothing
+ * is released and the paid state is returned so the guest sees it.
+ */
+export async function abandonOrder(orderId: string) {
+  const expired = await expireTransaction(orderId);
+  if (!expired) return syncPayment(orderId);
+
+  const bookingId = bookingIdOf(orderId);
+  if (bookingId !== null) await releaseHeldBooking(bookingId);
+  return { state: "failed" as PaymentState, bookingId, testMode: bookingId === null };
 }

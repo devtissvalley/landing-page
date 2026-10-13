@@ -146,7 +146,7 @@ export default function ReservePage() {
       if (!res.ok) throw new Error(body.error ?? "Please refresh in a moment.");
       if (closedPopup && body.state === "unknown") {
         setError(
-          "The payment window was closed before paying. Your villa is held for a short while — resume below.",
+          "The payment window was closed before paying. Your villa is held for a short while — resume below, or change your dates.",
         );
         return;
       }
@@ -228,6 +228,42 @@ export default function ReservePage() {
       onError: () => void showResult(c.orderId),
       onClose: () => void showResult(c.orderId, true),
     });
+  };
+
+  // Back to the date search. An open order is expired first so the old
+  // dates can't be paid later and the held villa is released.
+  const changeDates = async () => {
+    setError("");
+    if (checkout) {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/checkout/cancel", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ orderId: checkout.orderId }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error ?? "Please try again.");
+        if (body.state === "paid") {
+          // Paid in the meantime (e.g. a VA transfer): show that instead.
+          setResult(body);
+          setStep("done");
+          return;
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Please try again.");
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+    setCheckout(null);
+    setResult(null);
+    setOffers(null);
+    setStep("search");
+    requestAnimationFrame(() =>
+      document.getElementById("book")?.scrollIntoView({ behavior: "smooth" }),
+    );
   };
 
   const pay = async (e: React.FormEvent) => {
@@ -627,18 +663,14 @@ export default function ReservePage() {
                             : "Pay now"}
                       </button>
                     )}
-                    {!checkout && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setError("");
-                          setStep("search");
-                        }}
-                        className="text-tiss-charcoal text-xs tracking-widest uppercase link-underline cursor-pointer"
-                      >
-                        Back
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => void changeDates()}
+                      className="text-tiss-charcoal text-xs tracking-widest uppercase link-underline cursor-pointer disabled:opacity-50"
+                    >
+                      Change dates
+                    </button>
                   </div>
                   <p className="-mt-6 text-tiss-charcoal/50 text-xs font-light max-w-md">
                     {PAYMENT.percent < 100
@@ -681,16 +713,30 @@ export default function ReservePage() {
                         Midtrans within {PAYMENT.expiryMinutes} minutes. Your
                         booking is confirmed by email as soon as it arrives.
                       </p>
-                      {checkout && (
+                      <div className="flex flex-wrap items-center gap-6">
+                        {checkout && (
+                          <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() => void showResult(checkout.orderId)}
+                            className={primaryButton}
+                          >
+                            {loading ? "Checking…" : "I've paid — check again"}
+                          </button>
+                        )}
                         <button
                           type="button"
                           disabled={loading}
-                          onClick={() => void showResult(checkout.orderId)}
-                          className={primaryButton}
+                          onClick={() => void changeDates()}
+                          className="text-tiss-charcoal text-xs tracking-widest uppercase link-underline cursor-pointer disabled:opacity-50"
                         >
-                          {loading ? "Checking…" : "I've paid — check again"}
+                          Change dates
                         </button>
-                      )}
+                      </div>
+                      <p className="mt-4 text-tiss-charcoal/50 text-xs font-light max-w-md">
+                        Changing dates cancels this payment, so don&rsquo;t pay
+                        it afterwards.
+                      </p>
                     </>
                   )}
                   {(result.state === "failed" || result.state === "unknown") && (

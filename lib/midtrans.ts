@@ -131,6 +131,36 @@ export async function getPaymentStatus(orderId: string) {
   };
 }
 
+/**
+ * Expire a pending order so it can no longer be paid (guest changed their
+ * stay). Returns false if Midtrans refused because the order is already
+ * paid or final — the caller should re-read the status then.
+ */
+export async function expireTransaction(orderId: string): Promise<boolean> {
+  const { coreApi, serverKey } = config();
+  let res: Response;
+  try {
+    res = await fetch(`${coreApi}/${encodeURIComponent(orderId)}/expire`, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        authorization: `Basic ${Buffer.from(`${serverKey}:`).toString("base64")}`,
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch (err) {
+    throw new MidtransError(`Midtrans unreachable: ${String(err)}`);
+  }
+  const body = await res.json().catch(() => ({}));
+  const code = String(body.status_code ?? res.status);
+  // 407 = expired now. 404 = never started (guest didn't pick a method),
+  // nothing to pay, so treat as done too.
+  if (code === "407" || code === "404") return true;
+  if (code === "412") return false;
+  throw new MidtransError(`Midtrans expire failed: ${JSON.stringify(body)}`);
+}
+
 /** Check a notification's signature_key: SHA512(order_id+status_code+gross_amount+ServerKey). */
 export function verifyNotificationSignature(n: {
   order_id?: unknown;
