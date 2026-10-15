@@ -8,6 +8,7 @@
 //                     (sandbox) but no booking is created in Beds24.
 
 import { BEDS24_PROPERTY_ID } from "@/lib/data";
+import { emailConfigured } from "@/lib/email";
 
 const API = "https://beds24.com/api/v2";
 
@@ -206,33 +207,43 @@ async function getBooking(token: string, id: number) {
   const params = new URLSearchParams({
     id: String(id),
     includeInvoiceItems: "true",
+    includeInfoItems: "true",
   });
   const body = await call(`/bookings?${params}`, token);
   return (body.data?.[0] ?? null) as {
     id: number;
     status: string;
     invoiceItems?: { type: string; description?: string }[];
+    infoItems?: { code?: string }[];
   } | null;
 }
+
+// Info item written on the booking once the website's invoice email is sent,
+// so it is never sent twice (even after a restart or a webhook retry).
+const INVOICE_INFO_CODE = "WEBSITE_INVOICE";
 
 /**
  * Record a Midtrans payment on the booking and confirm it. Safe to call more
  * than once for the same order: the payment line is only added once.
+ * Returns whether the website's invoice email was already sent.
  */
 export async function confirmPaidBooking(
   id: number,
   orderId: string,
   amount: number,
-) {
+): Promise<{ invoiceSent: boolean }> {
   const token = writeToken();
-  if (!token) return;
+  if (!token) return { invoiceSent: false };
 
   const booking = await getBooking(token, id);
   if (!booking) throw new Beds24Error(`Beds24 booking ${id} not found`);
+  const invoiceSent = (booking.infoItems ?? []).some(
+    (item) => item.code === INVOICE_INFO_CODE,
+  );
   const alreadyPaid = (booking.invoiceItems ?? []).some(
     (item) => item.type === "payment" && item.description?.includes(orderId),
   );
-  if (alreadyPaid && booking.status === "confirmed") return;
+  if (alreadyPaid && booking.status === "confirmed") return { invoiceSent };
 
   await postBookings(token, [
     {
@@ -245,7 +256,22 @@ export async function confirmPaidBooking(
               { type: "payment", amount, description: `Midtrans ${orderId}` },
             ],
           }),
-      actions: { notifyGuest: true, notifyHost: true },
+      // The website emails its own invoice when Resend is set up; then
+      // Beds24's guest email would be a duplicate.
+      actions: { notifyGuest: !emailConfigured(), notifyHost: true },
+    },
+  ]);
+  return { invoiceSent };
+}
+
+/** Note on the booking that the invoice email went out. */
+export async function markInvoiceSent(id: number, emailId: string) {
+  const token = writeToken();
+  if (!token) return;
+  await postBookings(token, [
+    {
+      id,
+      infoItems: [{ code: INVOICE_INFO_CODE, text: `Invoice email sent (${emailId})` }],
     },
   ]);
 }

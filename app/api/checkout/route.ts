@@ -97,6 +97,13 @@ export async function POST(request: Request) {
       amount,
       itemName: `${villa.name}, ${stay.checkin} to ${stay.checkout}`,
       customer: { firstName, lastName, email, phone },
+      details: {
+        name: `${firstName} ${lastName}`,
+        email,
+        phone,
+        roomId: villa.roomId,
+        ...stay,
+      },
       finishUrl: `${origin}/reserve`,
       expiryMinutes: PAYMENT.expiryMinutes,
       pageMinutes: PAYMENT.pageMinutes,

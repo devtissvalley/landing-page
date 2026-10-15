@@ -10,6 +10,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { BUSINESS } from "@/lib/seo";
 import { MAX_NIGHTS, lastBookableDate } from "@/lib/stay";
+import { addDays, cancellationText } from "@/lib/cancellation";
 
 const MAX_GUESTS = Math.max(...villas.map((v) => v.maxGuests));
 
@@ -19,11 +20,6 @@ const idr = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 0,
 });
 
-function addDays(date: string, days: number) {
-  const d = new Date(`${date}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().split("T")[0];
-}
 
 function nightsBetween(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return 0;
@@ -40,28 +36,6 @@ function duration(minutes: number) {
     return `${h} ${h === 1 ? "hour" : "hours"}`;
   }
   return `${minutes} minutes`;
-}
-
-const longDate = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-/** The Beds24 cancellation rule, worded for this stay. */
-function cancellationText(rule: CancellationRule | null, checkIn: string) {
-  if (!rule) {
-    return "Please ask us about the cancellation policy before you pay.";
-  }
-  if (rule.type === "always") return "Free cancellation up to check-in.";
-  if (rule.type === "never") return "Non-refundable: this booking can't be cancelled for a refund.";
-  const deadline = addDays(checkIn, -rule.days);
-  const today = new Date().toISOString().split("T")[0];
-  if (deadline < today) {
-    return `Non-refundable: check-in is less than ${rule.days} days away, so this booking can't be cancelled for a refund.`;
-  }
-  return `Free cancellation until ${longDate.format(new Date(`${deadline}T00:00:00Z`))} (${rule.days} days before check-in). After that, the booking is non-refundable.`;
 }
 
 // Cloudflare Turnstile bot check before a villa is held. Off when no site

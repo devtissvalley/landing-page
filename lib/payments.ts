@@ -10,10 +10,15 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import {
   confirmPaidBooking,
+  getCancellationRule,
   listHeldWebsiteBookings,
+  markInvoiceSent,
   releaseHeldBooking,
 } from "@/lib/beds24";
-import { PAYMENT } from "@/lib/data";
+import { cancellationText } from "@/lib/cancellation";
+import { PAYMENT, villas } from "@/lib/data";
+import { emailConfigured, replyToAddress, sendEmail } from "@/lib/email";
+import { buildInvoiceEmail } from "@/lib/invoice";
 import {
   expireTransaction,
   getPaymentStatus,
@@ -56,27 +61,103 @@ function bookingIdOf(orderId: string): number | null {
   return match && match[1] !== "TEST" ? Number(match[1]) : null;
 }
 
-/**
- * Read the order's status from Midtrans and apply it to Beds24: confirm the
- * booking when paid, release the hold when the payment failed or expired.
- * Idempotent — called by the webhook and by the guest's browser.
- */
-export async function syncPayment(orderId: string): Promise<{
+type SyncResult = {
   state: PaymentState;
   bookingId: number | null;
   testMode: boolean;
-}> {
+};
+
+// The webhook, the guest's browser and the sweep can all sync one order at
+// the same moment; run them one after another so a payment is recorded and
+// invoiced once.
+const inFlight = new Map<string, Promise<SyncResult>>();
+
+/**
+ * Read the order's status from Midtrans and apply it to Beds24: confirm the
+ * booking when paid, release the hold when the payment failed or expired.
+ * Sends the invoice email once the payment is in. Idempotent — called by the
+ * webhook and by the guest's browser.
+ */
+export function syncPayment(orderId: string): Promise<SyncResult> {
+  const previous = inFlight.get(orderId) ?? Promise.resolve(null);
+  const run = previous.catch(() => null).then(() => runSync(orderId));
+  inFlight.set(orderId, run);
+  void run.finally(() => {
+    if (inFlight.get(orderId) === run) inFlight.delete(orderId);
+  }).catch(() => {});
+  return run;
+}
+
+// Test mode has no Beds24 booking to note the invoice on; remember sent
+// test invoices in memory instead (Resend's idempotency key covers restarts).
+const testInvoicesSent = new Set<string>();
+
+async function runSync(orderId: string): Promise<SyncResult> {
   const status = await getPaymentStatus(orderId);
   const bookingId = bookingIdOf(orderId);
 
-  if (bookingId !== null) {
-    if (status.state === "paid") {
-      await confirmPaidBooking(bookingId, orderId, status.amount);
-    } else if (status.state === "failed") {
-      await releaseHeldBooking(bookingId);
+  if (status.state === "paid") {
+    let invoiceSent = testInvoicesSent.has(orderId);
+    if (bookingId !== null) {
+      ({ invoiceSent } = await confirmPaidBooking(bookingId, orderId, status.amount));
     }
+    if (!invoiceSent) await sendInvoice(orderId, bookingId, status);
+  } else if (status.state === "failed" && bookingId !== null) {
+    await releaseHeldBooking(bookingId);
   }
   return { state: status.state, bookingId, testMode: bookingId === null };
+}
+
+/**
+ * Email the guest their receipt. A failure here never undoes the booking:
+ * it is logged, and the next sync for this order (webhook retry, the guest
+ * checking again, the sweep) tries again.
+ */
+async function sendInvoice(
+  orderId: string,
+  bookingId: number | null,
+  status: Awaited<ReturnType<typeof getPaymentStatus>>,
+) {
+  if (!emailConfigured()) return;
+  const d = status.details;
+  const villa = d && villas.find((v) => v.roomId === d.roomId);
+  if (!d || !villa) {
+    console.error("[invoice] order has no guest details, not sent:", orderId);
+    return;
+  }
+  try {
+    const rule = await getCancellationRule().catch(() => null);
+    const nights = Math.round(
+      (Date.parse(d.checkout) - Date.parse(d.checkin)) / (24 * 60 * 60_000),
+    );
+    const email = buildInvoiceEmail({
+      orderId,
+      bookingId,
+      guestName: d.name,
+      guestEmail: d.email,
+      villaName: villa.name,
+      checkin: d.checkin,
+      checkout: d.checkout,
+      nights,
+      guests: d.guests,
+      amount: status.amount,
+      total: Math.round((status.amount * 100) / PAYMENT.percent),
+      method: status.method,
+      paidAt: status.paidAt,
+      cancellation: cancellationText(rule, d.checkin),
+    });
+    const emailId = await sendEmail({
+      to: d.email,
+      bcc: replyToAddress(),
+      ...email,
+      idempotencyKey: `invoice/${orderId}`,
+    });
+    if (bookingId !== null) await markInvoiceSent(bookingId, emailId);
+    else testInvoicesSent.add(orderId);
+    console.info("[invoice] sent", orderId, emailId);
+  } catch (err) {
+    console.error("[invoice] failed for", orderId, err);
+  }
 }
 
 /**
@@ -121,7 +202,8 @@ async function runSweep() {
     const orderId = makeOrderId(hold.id);
     const status = await getPaymentStatus(orderId);
     if (status.state === "paid") {
-      await confirmPaidBooking(hold.id, orderId, status.amount);
+      // Paid but never synced (webhook lost): confirm and send the invoice.
+      await syncPayment(orderId);
     } else if (status.state === "failed" || status.state === "unknown") {
       // unknown = the guest never picked a method and the Snap page has
       // expired, so it can no longer be paid.

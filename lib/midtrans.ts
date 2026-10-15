@@ -63,11 +63,75 @@ async function call(url: string, init?: RequestInit) {
   return body;
 }
 
+/**
+ * Guest and stay details stored on the Midtrans order itself (custom
+ * fields), so the payment result and the invoice can be built from the
+ * order alone — no database, and no need to read guest data from Beds24.
+ */
+export type OrderDetails = {
+  name: string;
+  email: string;
+  phone: string;
+  roomId: number;
+  checkin: string;
+  checkout: string;
+  guests: number;
+};
+
+// Midtrans custom fields hold at most 255 characters each.
+function toCustomFields(d: OrderDetails) {
+  const fields = {
+    custom_field1: JSON.stringify({ n: d.name, p: d.phone }),
+    custom_field2: JSON.stringify({ e: d.email }),
+    custom_field3: JSON.stringify({ r: d.roomId, i: d.checkin, o: d.checkout, g: d.guests }),
+  };
+  for (const v of Object.values(fields)) {
+    if (v.length > 255) throw new MidtransError("Order details too long for Midtrans");
+  }
+  return fields;
+}
+
+function fromCustomFields(body: Record<string, unknown>): OrderDetails | null {
+  try {
+    const a = JSON.parse(String(body.custom_field1));
+    const b = JSON.parse(String(body.custom_field2));
+    const c = JSON.parse(String(body.custom_field3));
+    if (typeof b.e !== "string" || typeof c.r !== "number") return null;
+    return {
+      name: String(a.n ?? ""),
+      phone: String(a.p ?? ""),
+      email: b.e,
+      roomId: c.r,
+      checkin: String(c.i),
+      checkout: String(c.o),
+      guests: Number(c.g),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Human label for how the order was paid, e.g. "BCA Virtual Account". */
+function paymentMethod(body: Record<string, unknown>) {
+  const type = String(body.payment_type ?? "");
+  const va = (body.va_numbers as { bank?: string }[] | undefined)?.[0]?.bank;
+  if (type === "bank_transfer" && va) return `${va.toUpperCase()} Virtual Account`;
+  if (type === "bank_transfer" && body.permata_va_number) return "Permata Virtual Account";
+  if (type === "echannel") return "Mandiri Bill Payment";
+  if (type === "credit_card") return "Card";
+  if (type === "qris") return "QRIS";
+  if (type === "gopay") return "GoPay";
+  if (type === "shopeepay") return "ShopeePay";
+  if (type === "cstore") return "Convenience store";
+  return type ? type.replace(/_/g, " ") : "Online payment";
+}
+
 export type SnapRequest = {
   orderId: string;
   amount: number;
   itemName: string;
   customer: { firstName: string; lastName: string; email: string; phone: string };
+  details: OrderDetails;
   finishUrl: string;
   /** Time to complete a started payment (e.g. pay the VA). */
   expiryMinutes: number;
@@ -97,6 +161,7 @@ export async function createSnapTransaction(req: SnapRequest): Promise<string> {
         email: req.customer.email,
         phone: req.customer.phone,
       },
+      ...toCustomFields(req.details),
       expiry: { unit: "minutes", duration: req.expiryMinutes },
       page_expiry: { unit: "minutes", duration: req.pageMinutes },
       callbacks: { finish: req.finishUrl },
@@ -132,6 +197,10 @@ export async function getPaymentStatus(orderId: string) {
     state,
     transactionStatus: status,
     amount: Math.round(Number(body.gross_amount ?? 0)),
+    method: paymentMethod(body),
+    // "YYYY-MM-DD HH:mm:ss" in Jakarta time (WIB), as Midtrans reports it.
+    paidAt: String(body.settlement_time ?? body.transaction_time ?? ""),
+    details: fromCustomFields(body),
   };
 }
 
