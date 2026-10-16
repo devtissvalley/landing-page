@@ -1,11 +1,13 @@
 // Server-side Beds24 API V2 client. Import only from route handlers — it
 // reads secret tokens from the environment.
 //
-// BEDS24_TOKEN        read-only long life token (read:inventory, read:properties)
-// BEDS24_WRITE_TOKEN  optional token with read+write bookings,
-//                     bookings-personal and bookings-financial. Without it,
-//                     online payments run in test mode: Midtrans is charged
-//                     (sandbox) but no booking is created in Beds24.
+// BEDS24_TOKEN          read-only long life token (read:inventory, read:properties)
+// BEDS24_REFRESH_TOKEN  optional refresh token for read+write bookings,
+//                       write bookings-personal and read+write
+//                       bookings-financial (made from an invite code with
+//                       scripts/beds24-setup.mjs). Without it, online
+//                       payments run in test mode: Midtrans is charged
+//                       (sandbox) but no booking is created in Beds24.
 
 import { BEDS24_PROPERTY_ID } from "@/lib/data";
 import { emailConfigured } from "@/lib/email";
@@ -26,7 +28,7 @@ const TIMEOUT_MS = 15_000;
 
 async function call(
   path: string,
-  token: string,
+  token: string | null,
   init?: RequestInit,
   { retry = true } = {},
 ) {
@@ -37,7 +39,7 @@ async function call(
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        token,
+        ...(token ? { token } : {}),
         ...init?.headers,
       },
       cache: "no-store",
@@ -146,13 +148,41 @@ export type NewBooking = {
 // so it never touches bookings from other channels.
 const HOLD_MARKER = "Website booking — awaiting Midtrans payment";
 
-function writeToken() {
-  return process.env.BEDS24_WRITE_TOKEN || null;
+// Long life tokens are read-only, so writes use a 24-hour token from the
+// refresh token, renewed shortly before it expires. Renewing also keeps the
+// refresh token alive (Beds24 drops one unused for 30 days); the stale-hold
+// sweep asks for a token whenever the site gets traffic, so it stays in use.
+const TOKEN_MARGIN_MS = 10 * 60_000;
+let access: { token: string; expiresAt: number } | null = null;
+let renewing: Promise<string> | null = null;
+
+async function writeToken(): Promise<string | null> {
+  const refreshToken = process.env.BEDS24_REFRESH_TOKEN;
+  if (!refreshToken) return null;
+  if (access && Date.now() < access.expiresAt) return access.token;
+
+  renewing ??= (async () => {
+    const body = await call("/authentication/token", null, {
+      headers: { refreshToken },
+    });
+    if (typeof body.token !== "string") {
+      throw new Beds24Error("Beds24 /authentication/token returned no token");
+    }
+    const expiresIn = Number(body.expiresIn) || 3600;
+    access = {
+      token: body.token,
+      expiresAt: Date.now() + expiresIn * 1000 - TOKEN_MARGIN_MS,
+    };
+    return body.token as string;
+  })().finally(() => {
+    renewing = null;
+  });
+  return renewing;
 }
 
 /** Whether bookings are really written to Beds24 (false = test mode). */
 export function canWriteBookings() {
-  return writeToken() !== null;
+  return Boolean(process.env.BEDS24_REFRESH_TOKEN);
 }
 
 async function postBookings(token: string, payload: object[]) {
@@ -176,7 +206,7 @@ async function postBookings(token: string, payload: object[]) {
  * test mode.
  */
 export async function createHeldBooking(b: NewBooking): Promise<number | null> {
-  const token = writeToken();
+  const token = await writeToken();
   if (!token) return null;
 
   const result = await postBookings(token, [
@@ -232,7 +262,7 @@ export async function confirmPaidBooking(
   orderId: string,
   amount: number,
 ): Promise<{ invoiceSent: boolean }> {
-  const token = writeToken();
+  const token = await writeToken();
   if (!token) return { invoiceSent: false };
 
   const booking = await getBooking(token, id);
@@ -266,7 +296,7 @@ export async function confirmPaidBooking(
 
 /** Note on the booking that the invoice email went out. */
 export async function markInvoiceSent(id: number, emailId: string) {
-  const token = writeToken();
+  const token = await writeToken();
   if (!token) return;
   await postBookings(token, [
     {
@@ -278,7 +308,7 @@ export async function markInvoiceSent(id: number, emailId: string) {
 
 /** Release a held booking whose payment failed or expired. */
 export async function releaseHeldBooking(id: number) {
-  const token = writeToken();
+  const token = await writeToken();
   if (!token) return;
 
   const booking = await getBooking(token, id);
@@ -294,7 +324,7 @@ export async function releaseHeldBooking(id: number) {
 export async function listHeldWebsiteBookings(): Promise<
   { id: number; bookedAt: number }[]
 > {
-  const token = writeToken();
+  const token = await writeToken();
   if (!token) return [];
   const params = new URLSearchParams({
     propertyId: String(BEDS24_PROPERTY_ID),
