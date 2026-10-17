@@ -57,6 +57,10 @@ export function buildInvoiceEmail(d: InvoiceData) {
   const testMode = d.bookingId === null;
   const firstName = d.guestName.split(" ")[0] || "there";
   const deposit = d.amount < d.total;
+  // Cancellations and changes are handled on WhatsApp, not by email.
+  const changeLink = `${BUSINESS.whatsapp}?text=${encodeURIComponent(
+    `Hi TISS Valley, I'd like to cancel or change my booking ${ref}.`,
+  )}`;
   const address = `${BUSINESS.streetAddress}, ${BUSINESS.locality}, ${BUSINESS.district}, ${BUSINESS.county}, ${BUSINESS.region} ${BUSINESS.postalCode}`;
 
   const stayRows: [string, string][] = [
@@ -131,6 +135,7 @@ export function buildInvoiceEmail(d: InvoiceData) {
         </table>
         ${sectionTitle("Cancellation policy")}
         <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#4A4741;">${escapeHtml(d.cancellation)}</p>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#4A4741;">To cancel or change your booking, message us on WhatsApp at <a href="${escapeHtml(changeLink)}" style="color:#B5765A;">${escapeHtml(BUSINESS.telephone)}</a> with your booking reference.</p>
         ${sectionTitle("Questions?")}
         <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#4A4741;">Reply to this email, or message us on WhatsApp at <a href="${BUSINESS.whatsapp}" style="color:#B5765A;">${escapeHtml(BUSINESS.telephone)}</a>.</p>
       </td></tr>
@@ -160,6 +165,7 @@ export function buildInvoiceEmail(d: InvoiceData) {
     "",
     "CANCELLATION POLICY",
     d.cancellation,
+    `To cancel or change your booking, WhatsApp ${BUSINESS.telephone} with your booking reference.`,
     "",
     `Questions? Reply to this email, or WhatsApp ${BUSINESS.telephone}.`,
     "",
