@@ -145,8 +145,12 @@ export type NewBooking = {
 };
 
 // Written on every hold, and the only thing the stale-hold sweep matches on,
-// so it never touches bookings from other channels.
+// so it never touches bookings from other channels. Replaced once the hold
+// is paid or released, so staff never read "awaiting payment" on a paid
+// booking.
 const HOLD_MARKER = "Website booking — awaiting Midtrans payment";
+const PAID_NOTE = (orderId: string) => `Website booking — paid via Midtrans (${orderId})`;
+const RELEASED_NOTE = "Website booking — not paid, hold released";
 
 // Long life tokens are read-only, so writes use a 24-hour token from the
 // refresh token, renewed shortly before it expires. Renewing also keeps the
@@ -279,6 +283,7 @@ export async function confirmPaidBooking(
     {
       id,
       status: "confirmed",
+      apiMessage: PAID_NOTE(orderId),
       ...(alreadyPaid
         ? {}
         : {
@@ -314,7 +319,7 @@ export async function releaseHeldBooking(id: number) {
   const booking = await getBooking(token, id);
   // Only cancel our own unpaid hold — never a booking that got confirmed.
   if (!booking || booking.status !== "request") return;
-  await postBookings(token, [{ id, status: "cancelled" }]);
+  await postBookings(token, [{ id, status: "cancelled", apiMessage: RELEASED_NOTE }]);
 }
 
 /**
