@@ -68,8 +68,17 @@ export const PAYMENT = {
 // places together. Photos are placeholders until each type has its own shot.
 export const villas = [
   {
+    roomId: 732362, // Beds24: "King Room with Garden View"
+    name: "Garden Suite",
+    caption: "Ground level, surrounded by planting on every side.",
+    view: "Garden View",
+    src: "/assets/villa/garden-villa.webp",
+    units: 1,
+    maxGuests: 2,
+  },
+  {
     roomId: 732360, // Beds24: "King Room with Pool View"
-    name: "Pool View Villa",
+    name: "Upper Suite",
     caption: "Looking out over its own plunge pool, set into the terracing.",
     view: "Pool View",
     src: "/assets/villa/upper-suite.webp",
@@ -78,20 +87,11 @@ export const villas = [
   },
   {
     roomId: 732361, // Beds24: "King Room with Mountain View"
-    name: "Mountain View Villa",
+    name: "Lower Suite",
     caption: "Facing the highland ridgeline above Sebatu, first light at the door.",
     view: "Mountain View",
     src: "/assets/villa/lower-suite.webp",
     units: 2,
-    maxGuests: 2,
-  },
-  {
-    roomId: 732362, // Beds24: "King Room with Garden View"
-    name: "Garden View Villa",
-    caption: "Ground level, surrounded by planting on every side.",
-    view: "Garden View",
-    src: "/assets/villa/garden-villa.webp",
-    units: 1,
     maxGuests: 2,
   },
 ];
