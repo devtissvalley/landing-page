@@ -11,6 +11,8 @@ import Footer from "@/components/Footer";
 import { BUSINESS } from "@/lib/seo";
 import { MAX_NIGHTS, lastBookableDate } from "@/lib/stay";
 import { addDays, cancellationText } from "@/lib/cancellation";
+import { sameEmail, suggestEmail } from "@/lib/email-typo";
+import { bookingReference } from "@/lib/invoice";
 
 const MAX_GUESTS = Math.max(...villas.map((v) => v.maxGuests));
 
@@ -79,6 +81,7 @@ type Checkout = {
   snapJs: string;
 };
 type PaymentResult = {
+  orderId: string;
   state: "paid" | "pending" | "failed" | "unknown";
   bookingId: number | null;
   testMode: boolean;
@@ -140,6 +143,9 @@ export default function ReservePage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
+  // Suggested fix for a mistyped domain, shown once the email field is left.
+  const [emailHint, setEmailHint] = useState<string | null>(null);
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [checkout, setCheckout] = useState<Checkout | null>(null);
@@ -190,7 +196,7 @@ export default function ReservePage() {
         );
         return;
       }
-      setResult(body);
+      setResult({ ...body, orderId });
       setStep("done");
       // The result replaces a long form; bring it into view.
       requestAnimationFrame(() =>
@@ -287,7 +293,7 @@ export default function ReservePage() {
         if (!res.ok) throw new Error(body.error ?? "Please try again.");
         if (body.state === "paid") {
           // Paid in the meantime (e.g. a VA transfer): show that instead.
-          setResult(body);
+          setResult({ ...body, orderId: checkout.orderId });
           setStep("done");
           return;
         }
@@ -339,6 +345,12 @@ export default function ReservePage() {
 
   const pay = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!sameEmail(email, emailConfirm)) {
+      setError(
+        "The two email addresses don't match. Please check them — your booking confirmation is sent there.",
+      );
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -675,11 +687,54 @@ export default function ReservePage() {
                         required
                         autoComplete="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailHint(null);
+                        }}
+                        onBlur={() => setEmailHint(suggestEmail(email))}
                         placeholder="you@email.com"
                         className={inputClass}
                       />
+                      {emailHint && (
+                        <p className="mt-2 text-xs text-tiss-charcoal/70">
+                          Did you mean{" "}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // The confirm field likely has the same typo.
+                              if (sameEmail(emailConfirm, email)) setEmailConfirm(emailHint);
+                              setEmail(emailHint);
+                              setEmailHint(null);
+                            }}
+                            className="text-tiss-clay underline cursor-pointer"
+                          >
+                            {emailHint}
+                          </button>
+                          ?
+                        </p>
+                      )}
                     </div>
+                    <div>
+                      <label htmlFor="emailConfirm" className={labelClass}>
+                        Confirm email
+                      </label>
+                      <input
+                        id="emailConfirm"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={emailConfirm}
+                        onChange={(e) => setEmailConfirm(e.target.value)}
+                        aria-invalid={
+                          emailConfirm !== "" && !sameEmail(email, emailConfirm)
+                        }
+                        placeholder="Type it once more"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="phone" className={labelClass}>
                         Phone / WhatsApp
@@ -779,14 +834,38 @@ export default function ReservePage() {
                     <>
                       <p className="text-tiss-clay text-[10px] sm:text-xs tracking-widest mb-4 uppercase">
                         PAYMENT RECEIVED
-                        {result.bookingId ? ` · BOOKING ${result.bookingId}` : ""}
                       </p>
                       <h2 className="font-spectral text-3xl md:text-4xl text-tiss-charcoal mb-6">
                         You&rsquo;re booked{firstName ? `, ${firstName}` : ""}.
                       </h2>
-                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md">
-                        Thank you. A confirmation is on its way to your email.
-                        We look forward to welcoming you to the valley.
+                      <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
+                        Thank you. Your confirmation and receipt are on their
+                        way to{" "}
+                        {email ? (
+                          <span className="text-tiss-charcoal break-words">{email}</span>
+                        ) : (
+                          "your email"
+                        )}
+                        . We look forward to welcoming you to the valley.
+                      </p>
+                      <p className={labelClass}>Booking reference</p>
+                      <p className="font-spectral text-2xl text-tiss-charcoal break-words">
+                        {bookingReference(result)}
+                      </p>
+                      <p className="mt-8 text-tiss-charcoal/50 text-xs font-light max-w-md">
+                        Nothing in your inbox within a few minutes? Check your
+                        spam folder, or{" "}
+                        <a
+                          href={`${BUSINESS.whatsapp}?text=${encodeURIComponent(
+                            `Hi TISS Valley, I booked ${bookingReference(result)} but haven't received the confirmation email.`,
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-tiss-charcoal underline"
+                        >
+                          message us on WhatsApp
+                        </a>{" "}
+                        with your booking reference.
                       </p>
                     </>
                   )}
@@ -801,7 +880,8 @@ export default function ReservePage() {
                       <p className="text-tiss-charcoal/70 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
                         Complete the payment using the instructions from
                         Midtrans within {duration(PAYMENT.expiryMinutes)}. Your
-                        booking is confirmed by email as soon as it arrives.
+                        booking is confirmed by email
+                        {email ? ` to ${email}` : ""} as soon as it arrives.
                       </p>
                       <div className="flex flex-wrap items-center gap-6">
                         {checkout && (
